@@ -1,5 +1,7 @@
 # TCGA file parser
 
+import mirnatarget
+
 
 __author__ = 'Sharong'
 #import numpy as np
@@ -178,6 +180,9 @@ def paired_tTest(total_mirna, allsamplesN, allsamplesT):
     #output of all differentially expressed miRNAs, include amounts?
     output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output.txt', 'w')
 
+    #stores all the significant p-vals <0.05
+    pval_dict = dict()
+
     FC = foldChange(allsamplesN,allsamplesT)
     if 'hsa-mir-675' in FC:
         print "YES!!!!"
@@ -199,19 +204,47 @@ def paired_tTest(total_mirna, allsamplesN, allsamplesT):
                 if (FC[k]>=2 or FC[k]<=-2 ):
                     #print("paired sample:", paired_sample)
                     significant_count +=1
+                    pval_dict[k] = paired_sample[1]
 
 
                     output.write(k + "\t"+ str(FC[k])+"\n")
     print "significant count: ", significant_count
     output.close()
+    return pval_dict
+
+
+#prepares the layout for XGMML output file for Cytoscape
+# Gene_ID, gene_name, and then each column has expression and p-values columns
+def outputForCyto(targets, pval_dict):
+    #add log2 FC and P-value to dictionary as values
+    miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output.txt', 'r')
+    cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_cyto.txt', 'w')
+    cyto_output.write("gene_id\tgene_name\tlog2_fold_change\tp_value\n")
+    miRNA_FC_dict = dict()
+    for l in miRNA_FC:
+        l = l.strip().split()
+        miRNA_FC_dict[l[0]] = float(l[1])
+    #print miRNA_FC_dict
+    #print targets
+    for k,v in targets.items():
+        #print k[0] , miRNA_FC_dict[k]
+        if k[0] in miRNA_FC_dict:
+            cyto_output.write(k[1]+"\t"+str(k[2])+"\t"+str(miRNA_FC_dict[k[0]])+"\t"+str(pval_dict[k[0]])+"\n")
+    cyto_output.close()
+    miRNA_FC.close()
 
 
 
 def main():
 
     tumorDict, normalDict, total_mirna, allsamplesN, allsamplesT = getFiles()
-    paired_tTest(total_mirna,allsamplesN,allsamplesT)
+    pval_dict = paired_tTest(total_mirna,allsamplesN,allsamplesT)
     zScore(allsamplesN,allsamplesT)
+
+    #returns a dictionary: 3 keys[miRNA_ID,gene_ID,gene_name] and miSVR_score as value
+    targets = mirnatarget.microRNA()
+
+    outputForCyto(targets, pval_dict)
 
 
 
