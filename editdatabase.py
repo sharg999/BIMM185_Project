@@ -114,43 +114,73 @@ def getFiles():
 
     #deleteDuplicates(allsamplesN,allsamplesT)
 
+    #allcounts have the total RPM for that miRNA divided by the number of total samples
+    #allsamples includes all the RPM values collected per each miRNA
     return allcountsT,allcountsN,mirna_count, allsamplesN,allsamplesT
 
-"""
-#to make sure all samples have values for all miRNAs. to do  paired t-test
-def deleteDuplicates(allsamplesN, allsamplesT):
-    for k,v in allsamplesN.items():
-        if k not in allsamplesT:
-            print "DELETED"
-            del allsamplesN[k]
-        elif len(v) > len(allsamplesT[k]):
-            print "NOT EQUAL LENGTHS!!"
-    for k,v in allsamplesT.items():
-        if k not in allsamplesN:
-            print "DELETED"
-            del allsamplesT[k]
-"""
+
 
 
 # z = (expression in tumor sample) - (mean expression in normal sample)/ (standard deviation of expression in normal sample)
 def zScore(allsamplesN, allsamplesT):
-    import numpy
+    import numpy, math
     mean_dict = dict()
     stdev_dict = dict()
     for k,v in allsamplesN.items():
+        #print v
         mean_dict[k] = numpy.mean(v)
+        #print mean_dict[k]
         stdev_dict[k] = numpy.std(v)
+    #print mean_dict
+    #print stdev_dict
 
     z_score = dict()
     for k,v in allsamplesT.items():
         z_score.setdefault(k,[])
         for i in v:
-            z_score[k].append((i - mean_dict[k]) / stdev_dict[k])
-    print z_score
+            if stdev_dict[k]==0:
+                z_score[k].append(0.000000)
+            else:
+                z_score[k].append((i - mean_dict[k]) / stdev_dict[k])
+        #print z_score[k]
+
+    ####what is nan?
+    #print z_score
+
+
+
+def foldChange(allsampleN, allsamplesT):
+    foldchange_dict = dict()
+    result = dict()
+    for (k,v), (k2,v2) in zip(allsamplesT.items(),allsampleN.items()):
+        n = 0
+        for i in v:
+            n+= i
+        t = 0
+        for j in v2:
+            t+= j
+        if t==0:
+            foldchange_dict[k] = float(0)
+        else:
+            foldchange_dict[k] = float(n / t)
+        if foldchange_dict[k] >=2 or foldchange_dict[k]<=-2:
+            result[k] = foldchange_dict[k]
+            #print foldchange_dict[k]
+    #print "fold change:"
+    #print(foldchange_dict)
+    return result
+
 
 
 
 def paired_tTest(total_mirna, allsamplesN, allsamplesT):
+
+    #output of all differentially expressed miRNAs, include amounts?
+    output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output.txt', 'w')
+
+    FC = foldChange(allsamplesN,allsamplesT)
+    if 'hsa-mir-675' in FC:
+        print "YES!!!!"
 
     n = total_mirna
     significant_count = 0
@@ -159,24 +189,26 @@ def paired_tTest(total_mirna, allsamplesN, allsamplesT):
     for k,v in allsamplesT.items():
         #number of miRNAs apparently don't match so only use the ones that do
         if k in allsamplesN:
-
             normal = allsamplesN[k]
             tumor = allsamplesT[k]
 
             paired_sample = stats.ttest_rel(normal,tumor)
 
+            #signficant if p<0.05 and FC = +-2
+            if paired_sample[1] < 0.05 and k in FC:
+                if (FC[k]>=2 or FC[k]<=-2 ):
+                    #print("paired sample:", paired_sample)
+                    significant_count +=1
 
-            if paired_sample[1] < 0.05:
-                #print("paired sample:", paired_sample)
-                significant_count +=1
+
+                    output.write(k + "\t"+ str(FC[k])+"\n")
     print "significant count: ", significant_count
-
-
-
+    output.close()
 
 
 
 def main():
+
     tumorDict, normalDict, total_mirna, allsamplesN, allsamplesT = getFiles()
     paired_tTest(total_mirna,allsamplesN,allsamplesT)
     zScore(allsamplesN,allsamplesT)
