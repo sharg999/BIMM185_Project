@@ -53,15 +53,26 @@ def getFiles():
                     continue
                 #otherwise, just add to dictionary and keep track of sample counts
                 elif line[0] in allcountsT:
-                    allcountsT[line[0]]+= float(line[2])
-                    howmanyT[line[0]]+=1
-                    allsamplesT[line[0]].append(float(line[2]))
+                    #if RPM< .125 set to 0
+                    if float(line[2]) <0.125:
+                        allcountsT[line[0]]+= float(0.00000)
+                        howmanyT[line[0]]+=1
+                        allsamplesT[line[0]].append(float(0.00000))
+                    else:
+                        allcountsT[line[0]]+= float(line[2])
+                        howmanyT[line[0]]+=1
+                        allsamplesT[line[0]].append(float(line[2]))
                 else:
-                    allcountsT[line[0]]= float(line[2])
-                    howmanyT[line[0]] = 1
-
-                    allsamplesT.setdefault(line[0],[])
-                    allsamplesT[line[0]].append(float(line[2]))
+                    if float(line[2]) < 0.125:
+                        allcountsT[line[0]]= float(line[2])
+                        howmanyT[line[0]] = 1
+                        allsamplesT.setdefault(line[0],[])
+                        allsamplesT[line[0]].append(float(line[2]))
+                    else:
+                        allcountsT[line[0]]= float(line[2])
+                        howmanyT[line[0]] = 1
+                        allsamplesT.setdefault(line[0],[])
+                        allsamplesT[line[0]].append(float(line[2]))
 
         #parse the files for normal samples
         elif fnmatch.fnmatch(file, '*.mirna.quantification.txt') and (tpat != file[13:15]):
@@ -79,14 +90,26 @@ def getFiles():
                     continue
                 #otherwise, just add to dictionary and keep track of sample counts
                 elif line[0] in allcountsN:
-                    allcountsN[line[0]]+= float(line[2])
-                    howmanyN[line[0]]+=1
-                    allsamplesN[line[0]].append(float(line[2]))
+                    #if RPM < 0.125 set to 0
+                    if float(line[2]) < 0.125:
+                        allcountsN[line[0]]+= float(0.00000)
+                        howmanyN[line[0]]+=1
+                        allsamplesN[line[0]].append(float(0.00000))
+                    else:
+                       allcountsN[line[0]]+= float(line[2])
+                       howmanyN[line[0]]+=1
+                       allsamplesN[line[0]].append(float(line[2]))
                 else:
-                    allcountsN[line[0]]= float(line[2])
-                    howmanyN[line[0]] = 1
-                    allsamplesN.setdefault(line[0],[])
-                    allsamplesN[line[0]].append(float(line[2]))
+                    if float(line[2]) < 0.125:
+                        allcountsN[line[0]]= float(line[2])
+                        howmanyN[line[0]] = 1
+                        allsamplesN.setdefault(line[0],[])
+                        allsamplesN[line[0]].append(float(line[2]))
+                    else:
+                        allcountsN[line[0]]= float(line[2])
+                        howmanyN[line[0]] = 1
+                        allsamplesN.setdefault(line[0],[])
+                        allsamplesN[line[0]].append(float(line[2]))
 
     #testing:
 
