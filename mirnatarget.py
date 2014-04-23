@@ -14,9 +14,28 @@ def microRNA():
     return mirna_dict
 
 
+def CLASH():
+    file = open("//home//sharon//Desktop//miRNA_targets//CLASH//target_miRSNP_human_CLASH.txt", 'r')
+    title = file.readline().strip()
+    mirna_dict = dict()
+    for line in file:
+        line = line.strip()
+        line = line.split("\t")
+        ## delete the astreisk from the miRNA name
+        if line[4][-1] == '*':
+            temp = (line[4][:-1]).lower()
+            #print((line[4]).lower())
+            #print (line[4][:-1]).lower()
+            mirna_dict[temp] = (line[2]).lower()
+        else:
+            mirna_dict[(line[4]).lower()] = (line[2]).lower()
+    return mirna_dict
+
+
 def main():
 
     microRNA()
+    CLASH()
 
 
 
