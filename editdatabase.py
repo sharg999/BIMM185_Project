@@ -353,6 +353,19 @@ http://david.abcc.ncifcrf.gov/api.jsp?type=xxxxx&ids=XXXXX,XXXXX,XXXXXX,&tool=xx
 
 """
 def DAVID_annotation():
+    IDs = ""
+    genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_genelist.txt', 'r')
+    for line in genelist_output:
+        line = line.strip()
+        IDs+=line+","
+    print IDs
+    url = "http://david.abcc.ncifcrf.gov/api.jsp?type=GENE_SYMBOL&ids="+IDs+"&tool=term2term&annot=GOTERM_BP_FAT"
+    try:
+      result = urllib2.urlopen(url)
+      print result.read()
+    except urllib2.URLError, e:
+        print e.reason
+
 
 
 
@@ -374,6 +387,8 @@ def main():
     #outputForCyto(targets, pval_dict)
     outputForCyto2(targets_clash, pval_dict)
     outputForCyto3(targets_mirtar,pval_dict)
+
+    DAVID_annotation()
 
 
 if __name__ == '__main__':
