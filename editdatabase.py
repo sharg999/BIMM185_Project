@@ -1,6 +1,11 @@
 # TCGA file parser
 
 import mirnatarget
+import numpy as np
+
+# for DAVID API:
+import urllib2
+
 
 
 __author__ = 'Sharong'
@@ -192,17 +197,19 @@ def foldChange(allsampleN, allsamplesT):
     foldchange_dict = dict()
     result = dict()
     for (k,v), (k2,v2) in zip(allsamplesT.items(),allsampleN.items()):
+        #normal samples
         n = 0
         for i in v:
             n+= i
+        #tumor samples
         t = 0
         for j in v2:
             t+= j
         if t==0:
             foldchange_dict[k] = float(0)
         else:
-            foldchange_dict[k] = float(n / t)
-        if foldchange_dict[k] >=2 or foldchange_dict[k]<=-2:
+            foldchange_dict[k] = np.log2(float(n / t))
+        if foldchange_dict[k] >=1.0 or foldchange_dict[k]<=-1.0:
             result[k] = foldchange_dict[k]
             #print foldchange_dict[k]
     #print "fold change:"
@@ -297,10 +304,56 @@ def outputForCyto2(targets, pval_dict):
         if k in miRNA_FC_dict:
             if str(v) not in genes:
                 genes.append(str(v))
-                genelist_output.write(v+"\n")
-            cyto_output.write(v+"\t"+str(miRNA_FC_dict[k])+"\t"+str(pval_dict[k])+"\n")
+                genelist_output.write(v.lower()+"\n")
+            cyto_output.write(v.lower()+"\t"+str(miRNA_FC_dict[k])+"\t"+str(pval_dict[k])+"\n")
     cyto_output.close()
     miRNA_FC.close()
+
+
+
+def outputForCyto3(targets, pval_dict):
+    #add log2 FC and P-value to dictionary as values
+    miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output.txt', 'r')
+    cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_cyto.txt', 'r+')
+    genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_genelist.txt', 'r+')
+    cyto_output.write("gene_name\tlog2_fold_change\tp_value\n")
+    miRNA_FC_dict = dict()
+
+    #keep track of all genes already written to file
+    genes = []
+
+    #since mirTarBase is called after CLASH database, first see which genes already found
+    for line in genelist_output:
+        line = line.strip().lower()
+        genes.append(line)
+    print genes
+
+    for l in miRNA_FC:
+        l = l.strip().split()
+        miRNA_FC_dict[l[0]] = float(l[1])
+    print miRNA_FC_dict
+    print targets
+    for k,v in targets.items():
+        #print v[0]
+        if k in miRNA_FC_dict:
+            if str(v[0]) not in genes:
+                genes.append(str(v[0]))
+                genelist_output.write(v[0].lower()+"\n")
+            cyto_output.write(v[0].lower()+"\t"+str(miRNA_FC_dict[k])+"\t"+str(pval_dict[k])+"\n")
+    cyto_output.close()
+    miRNA_FC.close()
+
+"""
+API:
+http://david.abcc.ncifcrf.gov/api.jsp?type=xxxxx&ids=XXXXX,XXXXX,XXXXXX,&tool=xxxx&annot=xxxxx,xxxxxx,xxxxx,
+    type  =  one of DAVID recognized gene types
+    annot  = a list of desired annotation  categories separated by ","
+    ids  = a list of user's gene IDs separated by ","
+    tool  = one of DAVID tool names
+
+"""
+def DAVID_annotation():
+
 
 
 
@@ -316,10 +369,11 @@ def main():
     #work with DAVID annotation tool and import to Bader lab enchrichemnt map app
     targets = mirnatarget.microRNA()
     targets_clash = mirnatarget.CLASH()
+    targets_mirtar = mirnatarget.MirTarBase()
 
     #outputForCyto(targets, pval_dict)
     outputForCyto2(targets_clash, pval_dict)
-
+    outputForCyto3(targets_mirtar,pval_dict)
 
 
 if __name__ == '__main__':
