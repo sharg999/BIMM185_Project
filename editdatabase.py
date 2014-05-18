@@ -224,7 +224,8 @@ def foldChange(allsampleN, allsamplesT):
 def paired_tTest(total_mirna, allsamplesN, allsamplesT):
 
     #output of all differentially expressed miRNAs, include amounts?
-    output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output.txt', 'w')
+    output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_miRNA.txt', 'w')
+    output.writelines("miRNA\tlog2_FC\n")
 
     #stores all the significant p-vals <0.05
     pval_dict = dict()
@@ -288,7 +289,7 @@ def outputForCyto(targets, pval_dict):
 
 def outputForCyto2(targets, pval_dict):
     #add log2 FC and P-value to dictionary as values
-    miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output.txt', 'r')
+    miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_miRNA.txt', 'r')
     cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_cyto.txt', 'w')
     genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_genelist.txt', 'w')
 
@@ -303,8 +304,11 @@ def outputForCyto2(targets, pval_dict):
     genes = []
 
     for l in miRNA_FC:
-        l = l.strip().split()
-        miRNA_FC_dict[l[0]] = float(l[1])
+        if l.startswith("miRNA"):
+            continue
+        else:
+            l = l.strip().split()
+            miRNA_FC_dict[l[0]] = float(l[1])
     print miRNA_FC_dict
     print targets
     for k,v in targets.items():
@@ -320,7 +324,7 @@ def outputForCyto2(targets, pval_dict):
 
 def outputForCyto3(targets, pval_dict):
     #add log2 FC and P-value to dictionary as values
-    miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output.txt', 'r')
+    miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_miRNA.txt', 'r')
     cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_cyto.txt', 'a')
     genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_genelist.txt', 'a+')
     #cyto_output.write("gene_name\tmiRNA_target_log2_FC\tp_value\n")
@@ -340,8 +344,11 @@ def outputForCyto3(targets, pval_dict):
     print genes
 
     for l in miRNA_FC:
-        l = l.strip().split()
-        miRNA_FC_dict[l[0]] = float(l[1])
+        if l.startswith("miRNA"):
+            continue
+        else:
+            l = l.strip().split()
+            miRNA_FC_dict[l[0]] = float(l[1])
     print miRNA_FC_dict
     print targets
     for k,v in targets.items():
@@ -412,15 +419,17 @@ def combine_data():
     biomarkers = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_biomarkers.txt','w')
     biomarkers.write("#Genes differentially expressed in both miRNA and mRNA data\n")
 
+    """
     print "both lists:"
     print miRNA_list
     print mRNA_list
 
     for g in miRNA_list:
-        #print "g" + g
-        if g in mRNA_list:
-            biomarkers.write(g +"\n")
 
+        if g in mRNA_list:
+            print "g " + g
+            biomarkers.write(g +"\n")
+    """
     #output with gene from miRNA and FC from both miRNA and mRNA data sets
     FC_both = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_combineFC.txt','w')
     FC_both.write("#Genes differentially expressed in both miRNA and mRNA data\n")
@@ -442,6 +451,7 @@ def combine_data():
 
     for (k,v),(k2,v2) in zip(cyto.items(),mRNA_dict.items()):
         FC_both.write(k2[0]+"\t"+k2[1]+"\t"+v[0]+"\t"+v2+"\n")
+        biomarkers.writelines(str(k)+"\n")
 
     FC_both.close()
     cyto_output.close()
