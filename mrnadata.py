@@ -147,12 +147,12 @@ def foldChange(allsampleN, allsamplesT):
         t = 0
         for j in v2:
             t+= j
-        if t==0:
+        if n==0:
             foldchange_dict[(k[0],k[1])] = float(0)
         else:
-            foldchange_dict[(k[0],k[1])] = np.log2(float(n / t))
-        if foldchange_dict[(k[0],k[1])] >=1.0 or foldchange_dict[(k[0],k[1])]<=-1.0:
-            result[k] = foldchange_dict[k]
+            foldchange_dict[(k[0],k[1])] = np.log2(float(t / n))
+        #if foldchange_dict[(k[0],k[1])] >=1.0 or foldchange_dict[(k[0],k[1])]<=-1.0:
+        result[k] = foldchange_dict[k]
             #print foldchange_dict[k]
     #print "fold change:"
     #print(foldchange_dict)
@@ -162,8 +162,9 @@ def foldChange(allsampleN, allsamplesT):
 def paired_tTest(total_genes, allsamplesN, allsamplesT):
 
     #output of all differentially expressed genes
-    output = open('//home//sharon//Desktop//TCGA///RNAseqV2//BRCA//RNASeqV2//output.txt', 'w')
-    output.writelines("gene_name"+"\t"+"gene_id"+"\t"+"FC"+"\n")
+    output = open('//home//sharon//Desktop//TCGA///RNAseqV2//BRCA//RNASeqV2//output_mRNA_genes.txt', 'w')
+    output.writelines("#differentially expressed genes from mRNA data. FC threshold -+1, p_val<0.05 \n")
+    output.writelines("gene_name"+"\t"+"gene_id"+"\t"+"log2_FC"+"\t"+"p_val"+"\n")
 
     #stores all the significant p-vals <0.05
     pval_dict = dict()
@@ -179,15 +180,15 @@ def paired_tTest(total_genes, allsamplesN, allsamplesT):
 
             paired_sample = stats.ttest_rel(normal,tumor)
 
-            #signficant if p<0.05 and FC = +-2
-            if paired_sample[1] < 0.05 and k in FC:
-                if (FC[k]>=2 or FC[k]<=-2 ):
+
+            #signficant if p<0.05 and FC = +-1
+            #if paired_sample[1] < 0.05 and k in FC:
+            if (FC[k]>=1.0 or FC[k]<=-1.0 ) and paired_sample[1] <0.05:
                     #print("paired sample:", paired_sample)
                     significant_count +=1
-                    pval_dict[k] = paired_sample[1]
-
-
-                    output.write(k[0]+"\t"+k[1] + "\t"+ str(FC[k])+"\n")
+                    #pval_dict[k] = paired_sample[1]
+            #pval_dict[k] = paired_sample[1]
+                    output.write(k[0].lower()+"\t"+k[1] + "\t"+ str(FC[k])+"\t"+str(paired_sample[1])+"\n")
     print "significant count: ", significant_count
     output.close()
     return pval_dict
