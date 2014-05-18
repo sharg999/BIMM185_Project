@@ -1,6 +1,7 @@
 # TCGA file parser
 
 import mirnatarget
+import mrnadata
 import numpy as np
 
 # for DAVID API:
@@ -21,7 +22,7 @@ from scipy import stats
 #PATH = "C:\Users\Sharong\Desktop\Backed up Data 12.14.2012\Desktop\UCSD\2013-2014 academic year\BIMM 185\DB\BRCA\miRNASeq\BCGSC__IlluminaHiSeq_miRNASeq\Level_3"
 
 
-def getFiles():
+def getFiles_miRNA():
     #print("Location of files: ")
     #directory = input()
     directory = '//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit'
@@ -205,10 +206,10 @@ def foldChange(allsampleN, allsamplesT):
         t = 0
         for j in v2:
             t+= j
-        if t==0:
+        if n==0:
             foldchange_dict[k] = float(0)
         else:
-            foldchange_dict[k] = np.log2(float(n / t))
+            foldchange_dict[k] = np.log2(float(t / n))
         if foldchange_dict[k] >=1.0 or foldchange_dict[k]<=-1.0:
             result[k] = foldchange_dict[k]
             #print foldchange_dict[k]
@@ -241,9 +242,9 @@ def paired_tTest(total_mirna, allsamplesN, allsamplesT):
 
             paired_sample = stats.ttest_rel(normal,tumor)
 
-            #signficant if p<0.05 and FC = +-2
+            #signficant if p<0.05 and FC = +-1
             if paired_sample[1] < 0.05 and k in FC:
-                if (FC[k]>=2 or FC[k]<=-2 ):
+                if (FC[k]>=1 or FC[k]<=-1 ):
                     #print("paired sample:", paired_sample)
                     significant_count +=1
                     pval_dict[k] = paired_sample[1]
@@ -278,7 +279,7 @@ def outputForCyto(targets, pval_dict):
         if k[0] in miRNA_FC_dict:
             if str(k[2]) not in genes:
                 genes.append(str(k[2]))
-                genelist_output.write(k[2]+"\n")
+                genelist_output.write(k[2].lower()+"\n")
             cyto_output.write(k[1]+"\t"+str(k[2])+"\t"+str(miRNA_FC_dict[k[0]])+"\t"+str(pval_dict[k[0]])+"\n")
     cyto_output.close()
     miRNA_FC.close()
@@ -289,7 +290,12 @@ def outputForCyto2(targets, pval_dict):
     miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output.txt', 'r')
     cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_cyto.txt', 'w')
     genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_genelist.txt', 'w')
-    cyto_output.write("gene_name\tlog2_fold_change\tp_value\n")
+
+    cyto_output.writelines("#differentially expressed miRNA target genes. FC threshold -+1, p<0.05"+ "\n")
+    cyto_output.writelines("gene_name\tlog2_fold_change\tp_value\n")
+
+    genelist_output.writelines("#miRNA targets of differentially expressed miRNAs from both CLASH and mirTarBase\n")
+
     miRNA_FC_dict = dict()
 
     #keep track of all genes already written to file
@@ -314,9 +320,9 @@ def outputForCyto2(targets, pval_dict):
 def outputForCyto3(targets, pval_dict):
     #add log2 FC and P-value to dictionary as values
     miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output.txt', 'r')
-    cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_cyto.txt', 'r+')
-    genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_genelist.txt', 'r+')
-    cyto_output.write("gene_name\tlog2_fold_change\tp_value\n")
+    cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_cyto.txt', 'a')
+    genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_genelist.txt', 'w+')
+    #cyto_output.write("gene_name\tmiRNA_target_log2_FC\tp_value\n")
     miRNA_FC_dict = dict()
 
     #keep track of all genes already written to file
@@ -325,7 +331,10 @@ def outputForCyto3(targets, pval_dict):
     #since mirTarBase is called after CLASH database, first see which genes already found
     for line in genelist_output:
         line = line.strip().lower()
-        genes.append(line)
+        if line.startswith("gene_name") or line.startswith("#"):
+            continue
+        else:
+            genes.append(line)
     print genes
 
     for l in miRNA_FC:
@@ -367,28 +376,96 @@ def DAVID_annotation():
         print e.reason
 
 
+#check for intersection between gene lists from miRNA and mRNA
+def combine_data():
+    miRNA_genes = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_genelist.txt','r')
+    mRNA_gnes = open("//home//sharon//Desktop//TCGA///RNAseqV2//BRCA//RNASeqV2//output_mRNA_genes.txt",'r')
+
+    miRNA_list = []
+    mRNA_list = []
+    mRNA_dict = dict()
+
+    for line in miRNA_genes:
+        line = line.strip()
+        miRNA_list.append(line)
+    for line in mRNA_gnes:
+        if line.startswith("gene_name") or line.startswith("#"):
+            continue
+        elif line == '\n':
+            continue
+        else:
+            line = line.split()
+            mRNA_list.append(line[0])
+
+
+            #if no gene_ID available:
+            if len(line) == 2:
+                mRNA_dict[(line[0],'N/A')] = line[1]
+            else:
+                #key: gene_name, gene_ID ; value: FC
+                mRNA_dict[(line[0],line[1])] = line[2]
+
+    biomarkers = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_biomarkers.txt','w')
+    biomarkers.write("#Genes differentially expressed in both miRNA and mRNA data\n")
+
+    for g in miRNA_list:
+        #print "g" + g
+        if g in mRNA_list:
+            biomarkers.write(g +"\n")
+
+    #output with gene from miRNA and FC from both miRNA and mRNA data sets
+    FC_both = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_combineFC.txt','w')
+    FC_both.write("gene_name\tgene_ID\tlog2_FC_miRNA\tlog2_FC_mRNA\n")
+
+    cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_cyto.txt', 'r')
+    cyto = dict()
+    for line in cyto_output:
+        line = line.strip()
+        if line.startswith("gene_name"):
+            continue
+        else:
+            line.split()
+            # key= gene_name ; values= FC, p_val
+            cyto[line[0]] = (line[1],line[2])
+
+    for (k,v),(k2,v2) in zip(cyto.items(),mRNA_dict.items()):
+        FC_both.write(k2[0]+"\t"+k2[1]+"\t"+v[0]+"\t"+v2+"\n")
+
+    FC_both.close()
+    cyto_output.close()
+
+
+
+
+
 
 
 
 
 def main():
 
-    tumorDict, normalDict, total_mirna, allsamplesN, allsamplesT = getFiles()
+    tumorDict, normalDict, total_mirna, allsamplesN, allsamplesT = getFiles_miRNA()
     pval_dict = paired_tTest(total_mirna,allsamplesN,allsamplesT)
     #zScore(allsamplesN,allsamplesT)
 
     #returns a dictionary: 3 keys[miRNA_ID,gene_ID,gene_name] and miSVR_score as value
     ##TEMP!! need to work with CLASH DB to narrow down predictions
     #work with DAVID annotation tool and import to Bader lab enchrichemnt map app
-    targets = mirnatarget.microRNA()
+    #targets = mirnatarget.microRNA()
     targets_clash = mirnatarget.CLASH()
     targets_mirtar = mirnatarget.MirTarBase()
 
     #outputForCyto(targets, pval_dict)
     outputForCyto2(targets_clash, pval_dict)
+
+    #add gene results from outputForCyto2:
     outputForCyto3(targets_mirtar,pval_dict)
 
-    DAVID_annotation()
+    #DAVID_annotation()
+
+    mrnadata.main()
+
+    combine_data()
 
 
 if __name__ == '__main__':
