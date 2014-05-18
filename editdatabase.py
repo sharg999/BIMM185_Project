@@ -18,6 +18,7 @@ import glob
 import os
 import fnmatch
 from scipy import stats
+import re
 
 #PATH = "C:\Users\Sharong\Desktop\Backed up Data 12.14.2012\Desktop\UCSD\2013-2014 academic year\BIMM 185\DB\BRCA\miRNASeq\BCGSC__IlluminaHiSeq_miRNASeq\Level_3"
 
@@ -321,7 +322,7 @@ def outputForCyto3(targets, pval_dict):
     #add log2 FC and P-value to dictionary as values
     miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output.txt', 'r')
     cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_cyto.txt', 'a')
-    genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_genelist.txt', 'w+')
+    genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_genelist.txt', 'a+')
     #cyto_output.write("gene_name\tmiRNA_target_log2_FC\tp_value\n")
     miRNA_FC_dict = dict()
 
@@ -331,10 +332,11 @@ def outputForCyto3(targets, pval_dict):
     #since mirTarBase is called after CLASH database, first see which genes already found
     for line in genelist_output:
         line = line.strip().lower()
-        if line.startswith("gene_name") or line.startswith("#"):
+        if line.startswith("#"):
             continue
         else:
             genes.append(line)
+    print "genelist: "
     print genes
 
     for l in miRNA_FC:
@@ -387,7 +389,10 @@ def combine_data():
 
     for line in miRNA_genes:
         line = line.strip()
-        miRNA_list.append(line)
+        if line.startswith("gene_name"):
+            continue
+        else:
+            miRNA_list.append(line)
     for line in mRNA_gnes:
         if line.startswith("gene_name") or line.startswith("#"):
             continue
@@ -415,18 +420,22 @@ def combine_data():
 
     #output with gene from miRNA and FC from both miRNA and mRNA data sets
     FC_both = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_combineFC.txt','w')
+    FC_both.write("#Genes differentially expressed in both miRNA and mRNA data\n")
     FC_both.write("gene_name\tgene_ID\tlog2_FC_miRNA\tlog2_FC_mRNA\n")
+
 
     cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_cyto.txt', 'r')
     cyto = dict()
     for line in cyto_output:
+
         line = line.strip()
-        if line.startswith("gene_name"):
+        if line.startswith("gene_name") or line.startswith("#"):
             continue
         else:
-            line.split()
+            l = re.split(r'\s',line)
             # key= gene_name ; values= FC, p_val
-            cyto[line[0]] = (line[1],line[2])
+            cyto[l[0]] = (l[1],l[2])
+
 
     for (k,v),(k2,v2) in zip(cyto.items(),mRNA_dict.items()):
         FC_both.write(k2[0]+"\t"+k2[1]+"\t"+v[0]+"\t"+v2+"\n")
