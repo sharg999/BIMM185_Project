@@ -389,7 +389,7 @@ def combine_data():
 
     for line in miRNA_genes:
         line = line.strip()
-        if line.startswith("gene_name"):
+        if line.startswith("gene_name") or line.startswith("#"):
             continue
         else:
             miRNA_list.append(line)
@@ -402,7 +402,6 @@ def combine_data():
             line = line.split()
             mRNA_list.append(line[0])
 
-
             #if no gene_ID available:
             if len(line) == 2:
                 mRNA_dict[(line[0],'N/A')] = line[1]
@@ -412,6 +411,10 @@ def combine_data():
 
     biomarkers = open('//home//sharon//Desktop//TCGA//BRCA//BRCA_allinone//edit//output_biomarkers.txt','w')
     biomarkers.write("#Genes differentially expressed in both miRNA and mRNA data\n")
+
+    print "both lists:"
+    print miRNA_list
+    print mRNA_list
 
     for g in miRNA_list:
         #print "g" + g
