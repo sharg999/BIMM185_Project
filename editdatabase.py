@@ -4,6 +4,7 @@ import mirnatarget
 import mrnadata
 import numpy as np
 
+
 # for DAVID API:
 import urllib2
 
@@ -533,6 +534,7 @@ def combine_data():
             print "g " + g
             biomarkers.write(g +"\n")
     """
+
     #output with gene from miRNA and FC from both miRNA and mRNA data sets
     #FC_both = open('//home//sharon//Desktop//TCGA//BRCA//output_combineFC.txt','w')
     #FC_both = open('//home//sharon//Desktop//TCGA//LIHC//output_combineFC.txt','w')
@@ -573,6 +575,56 @@ def combine_data():
 
 
 
+#Pearson and Spearman
+#S depicts monotonic relationships while P depicts linear relationships
+def correlation():
+    #output with gene from miRNA and FC from both miRNA and mRNA data sets
+    #FC_both = open('//home//sharon//Desktop//TCGA//BRCA//output_combineFC.txt','r')
+    #FC_both = open('//home//sharon//Desktop//TCGA//LIHC//output_combineFC.txt','r')
+    #FC_both = open('//home//sharon//Desktop//TCGA//LUAD//output_combineFC.txt','r')
+    #FC_both = open('//home//sharon//Desktop//TCGA//ESCA//output_combineFC.txt','r')
+    #FC_both = open('//home//sharon//Desktop//TCGA//HNSC//output_combineFC.txt','r')
+    FC_both = open('//home//sharon//Desktop//TCGA//KICH//output_combineFC.txt','r')
+
+    genename = []
+    #mirna FC:
+    x = []
+    #mrna FC:
+    y = []
+
+    for line in FC_both:
+        line = line.strip()
+        if line.startswith("#Genes") or line.startswith("gene_name"):
+            continue
+        else:
+            line = line.split()
+            genename.append(line[0])
+            if "inf" in line[2]:
+                if line[2].startswith("-"):
+                    x.append(float(-100000.00))
+                else:
+                    x.append(float(100000.00))
+            else:
+                x.append(float(line[2]))
+            if "inf" in line[3]:
+                if line[3].startswith("-"):
+                    y.append(float(-100000.00))
+                else:
+                    y.append(float(100000.00))
+            else:
+                y.append(float(line[3]))
+
+
+            #print x
+            #print y
+
+    #pearson:
+    result_pearson =  stats.pearsonr(x,y)
+    print(result_pearson)
+
+    #spearman:
+    result_spearman =  stats.spearmanr(x,y)
+    print(result_spearman)
 
 
 
@@ -603,6 +655,8 @@ def main():
     mrnadata.main()
 
     combine_data()
+
+    correlation()
 
 
 if __name__ == '__main__':
