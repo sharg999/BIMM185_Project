@@ -9,10 +9,12 @@ def getfiles_mrna():
 
     #match between files names and barcodes
     #filemap = open('//home//sharon//Desktop//TCGA//BRCA//mRNA//file_manifest.txt','r')
-    filemap = open('//home//sharon//Desktop//TCGA//LIHC//mRNA//file_manifest.txt','r')
+    #filemap = open('//home//sharon//Desktop//TCGA//LIHC//mRNA//file_manifest.txt','r')
     #filemap = open('//home//sharon//Desktop//TCGA//LUAD//mRNA//file_manifest.txt','r')
     #filemap = open('//home//sharon//Desktop//TCGA//ESCA//mRNA//file_manifest.txt','r')
     #filemap = open('//home//sharon//Desktop//TCGA//HNSC//mRNA//file_manifest.txt','r')
+    filemap = open('//home//sharon//Desktop//TCGA//KICH//mRNA//file_manifest.txt','r')
+
 
     filemap_dict = dict()
     for line in filemap:
@@ -30,10 +32,11 @@ def getfiles_mrna():
 
 
     #directory = '//home//sharon//Desktop//TCGA//BRCA//mRNA'
-    directory = '//home//sharon//Desktop//TCGA//LIHC//mRNA'
+    #directory = '//home//sharon//Desktop//TCGA//LIHC//mRNA'
     #directory = '//home//sharon//Desktop//TCGA//LUAD//mRNA'
     #directory = '//home//sharon//Desktop//TCGA//ESCA//mRNA'
     #directory = '//home//sharon//Desktop//TCGA//HNSC//mRNA'
+    directory = '//home//sharon//Desktop//TCGA//KICH//mRNA'
 
 
     path = r"%s" % directory
@@ -58,10 +61,11 @@ def getfiles_mrna():
         if fnmatch.fnmatch(file, '*.rsem.genes.normalized_results') and (tpat==filemap_dict[file][13:15]):
             #print(file[13:15])
             #f = open('//home//sharon//Desktop//TCGA//BRCA//mRNA//%s' % file, 'r')
-            f = open('//home//sharon//Desktop//TCGA//LIHC//mRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//LIHC//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LUAD//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//ESCA//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//HNSC//mRNA//%s' % file, 'r')
+            f = open('//home//sharon//Desktop//TCGA//KICH//mRNA//%s' % file, 'r')
 
 
             lines = f.readlines()
@@ -106,10 +110,11 @@ def getfiles_mrna():
         elif fnmatch.fnmatch(file, '*.rsem.genes.normalized_results') and ('11'==filemap_dict[file][13:15]):
             #print(file[13:15])
             #f = open('//home//sharon//Desktop//TCGA//BRCA//mRNA//%s' % file, 'r')
-            f = open('//home//sharon//Desktop//TCGA//LIHC//mRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//LIHC//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LUAD//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//ESCA//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//HNSC//mRNA//%s' % file, 'r')
+            f = open('//home//sharon//Desktop//TCGA//KICH//mRNA//%s' % file, 'r')
 
             lines = f.readlines()
 
@@ -183,10 +188,11 @@ def paired_tTest(total_genes, allsamplesN, allsamplesT):
 
     #output of all differentially expressed genes
     #output = open('//home//sharon//Desktop//TCGA//BRCA//output_mRNA_genes.txt', 'w')
-    output = open('//home//sharon//Desktop//TCGA//LIHC//output_mRNA_genes.txt', 'w')
+    #output = open('//home//sharon//Desktop//TCGA//LIHC//output_mRNA_genes.txt', 'w')
     #output = open('//home//sharon//Desktop//TCGA//LUAD//output_mRNA_genes.txt', 'w')
     #output = open('//home//sharon//Desktop//TCGA//ESCA//output_mRNA_genes.txt', 'w')
     #output = open('//home//sharon//Desktop//TCGA//HNSC//output_mRNA_genes.txt', 'w')
+    output = open('//home//sharon//Desktop//TCGA//KICH//output_mRNA_genes.txt', 'w')
 
 
     output.writelines("#differentially expressed genes from mRNA data. FC threshold -+1, p_val<0.05 \n")
