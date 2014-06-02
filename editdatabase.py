@@ -27,10 +27,11 @@ def getFiles_miRNA():
     #print("Location of files: ")
     #directory = input()
     #directory = '//home//sharon//Desktop//TCGA//BRCA//miRNA'
-    directory = '//home//sharon//Desktop//TCGA//LIHC//miRNA'
+    #directory = '//home//sharon//Desktop//TCGA//LIHC//miRNA'
     #directory = '//home//sharon//Desktop//TCGA//LUAD//miRNA'
     #directory = '//home//sharon//Desktop//TCGA//ESCA//miRNA'
     #directory = '//home//sharon//Desktop//TCGA//HNSC//miRNA'
+    directory = '//home//sharon//Desktop//TCGA//KICH//miRNA'
 
     path = r"%s" % directory
     #dictionary for normal and tumor samples
@@ -54,10 +55,11 @@ def getFiles_miRNA():
             #print(file[13:15])
 
             #f = open('//home//sharon//Desktop//TCGA//BRCA//miRNA//%s' % file, 'r')
-            f = open('//home//sharon//Desktop//TCGA//LIHC//miRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//LIHC//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LUAD//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//ESCA//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//HNSC//miRNA//%s' % file, 'r')
+            f = open('//home//sharon//Desktop//TCGA//KICH//miRNA//%s' % file, 'r')
 
             lines = f.readlines()
             #print(lines)
@@ -96,10 +98,11 @@ def getFiles_miRNA():
 
 
             #f = open('//home//sharon//Desktop//TCGA//BRCA//miRNA//%s' % file, 'r')
-            f = open('//home//sharon//Desktop//TCGA//LIHC//miRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//LIHC//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LUAD//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//ESCA//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//HNSC//miRNA//%s' % file, 'r')
+            f = open('//home//sharon//Desktop//TCGA//KICH//miRNA//%s' % file, 'r')
 
             lines = f.readlines()
             #print(lines)
@@ -239,10 +242,11 @@ def paired_tTest(total_mirna, allsamplesN, allsamplesT):
 
     #output of all differentially expressed miRNAs, include amounts?
     #output = open('//home//sharon//Desktop//TCGA//BRCA//output_miRNA.txt', 'w')
-    output = open('//home//sharon//Desktop//TCGA//LIHC//output_miRNA.txt', 'w')
+    #output = open('//home//sharon//Desktop//TCGA//LIHC//output_miRNA.txt', 'w')
     #output = open('//home//sharon//Desktop//TCGA//LUAD//output_miRNA.txt', 'w')
     #output = open('//home//sharon//Desktop//TCGA//ESCA//output_miRNA.txt', 'w')
     #output = open('//home//sharon//Desktop//TCGA//HNSC//output_miRNA.txt', 'w')
+    output = open('//home//sharon//Desktop//TCGA//KICH//output_miRNA.txt', 'w')
 
     output.writelines("miRNA\tlog2_FC\n")
 
@@ -282,22 +286,25 @@ def paired_tTest(total_mirna, allsamplesN, allsamplesT):
 def outputForCyto(targets, pval_dict):
     #add log2 FC and P-value to dictionary as values
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//output.txt', 'r')
-    miRNA_FC = open('//home//sharon//Desktop//TCGA//LIHC//output.txt', 'r')
+    #miRNA_FC = open('//home//sharon//Desktop//TCGA//LIHC//output.txt', 'r')
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//LUAD//output.txt', 'r')
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//ESCA//output.txt', 'r')
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//HNSC//output.txt', 'r')
+    miRNA_FC = open('//home//sharon//Desktop//TCGA//KICH//output.txt', 'r')
 
     #cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//output_cyto.txt', 'w+')
-    cyto_output = open('//home//sharon//Desktop//TCGA//LIHC//output_cyto.txt', 'w+')
+    #cyto_output = open('//home//sharon//Desktop//TCGA//LIHC//output_cyto.txt', 'w+')
     #cyto_output = open('//home//sharon//Desktop//TCGA//LUAD//output_cyto.txt', 'w+')
     #cyto_output = open('//home//sharon//Desktop//TCGA//ESCA//output_cyto.txt', 'w+')
     #cyto_output = open('//home//sharon//Desktop//TCGA//HNSC//output_cyto.txt', 'w+')
+    cyto_output = open('//home//sharon//Desktop//TCGA//KICH//output_cyto.txt', 'w+')
 
     #genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//output_genelist.txt', 'w+')
-    genelist_output = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt', 'w+')
+    #genelist_output = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt', 'w+')
     #genelist_output = open('//home//sharon//Desktop//TCGA//LUAD//output_genelist.txt', 'w+')
     #genelist_output = open('//home//sharon//Desktop//TCGA//ESCA//output_genelist.txt', 'w+')
     #genelist_output = open('//home//sharon//Desktop//TCGA//HNSC//output_genelist.txt', 'w+')
+    genelist_output = open('//home//sharon//Desktop//TCGA//KICH//output_genelist.txt', 'w+')
 
     cyto_output.write("gene_id\tgene_name\tlog2_fold_change\tp_value\n")
     miRNA_FC_dict = dict()
@@ -325,22 +332,25 @@ def outputForCyto2(targets, pval_dict):
     #add log2 FC and P-value to dictionary as values
 
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//output_miRNA.txt', 'r')
-    miRNA_FC = open('//home//sharon//Desktop//TCGA//LIHC//output_miRNA.txt', 'r')
+    #miRNA_FC = open('//home//sharon//Desktop//TCGA//LIHC//output_miRNA.txt', 'r')
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//LUAD//output_miRNA.txt', 'r')
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//ESCA//output_miRNA.txt', 'r')
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//HNSC//output_miRNA.txt', 'r')
+    miRNA_FC = open('//home//sharon//Desktop//TCGA//KICH//output_miRNA.txt', 'r')
 
     #cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//output_cyto.txt', 'w')
-    cyto_output = open('//home//sharon//Desktop//TCGA//LIHC//output_cyto.txt', 'w')
+    #cyto_output = open('//home//sharon//Desktop//TCGA//LIHC//output_cyto.txt', 'w')
     #cyto_output = open('//home//sharon//Desktop//TCGA//LUAD//output_cyto.txt', 'w')
     #cyto_output = open('//home//sharon//Desktop//TCGA//ESCA//output_cyto.txt', 'w')
     #cyto_output = open('//home//sharon//Desktop//TCGA//HNSC//output_cyto.txt', 'w')
+    cyto_output = open('//home//sharon//Desktop//TCGA//KICH//output_cyto.txt', 'w')
 
     #genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//output_genelist.txt', 'w')
-    genelist_output = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt', 'w')
+    #genelist_output = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt', 'w')
     #genelist_output = open('//home//sharon//Desktop//TCGA//LUAD//output_genelist.txt', 'w')
     #genelist_output = open('//home//sharon//Desktop//TCGA//ESCA//output_genelist.txt', 'w')
     #genelist_output = open('//home//sharon//Desktop//TCGA//HNSC//output_genelist.txt', 'w')
+    genelist_output = open('//home//sharon//Desktop//TCGA//KICH//output_genelist.txt', 'w')
 
     cyto_output.writelines("#differentially expressed miRNA target genes. FC threshold -+1, p<0.05"+ "\n")
     cyto_output.writelines("gene_name\tlog2_fold_change\tp_value\n")
@@ -375,22 +385,25 @@ def outputForCyto3(targets, pval_dict):
     #add log2 FC and P-value to dictionary as values
 
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//output_miRNA.txt', 'r')
-    miRNA_FC = open('//home//sharon//Desktop//TCGA//LIHC//output_miRNA.txt', 'r')
+    #miRNA_FC = open('//home//sharon//Desktop//TCGA//LIHC//output_miRNA.txt', 'r')
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//LUAD//output_miRNA.txt', 'r')
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//ESCA//output_miRNA.txt', 'r')
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//HNSC//output_miRNA.txt', 'r')
+    miRNA_FC = open('//home//sharon//Desktop//TCGA//KICH//output_miRNA.txt', 'r')
 
     #cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//output_cyto.txt', 'a')
-    cyto_output = open('//home//sharon//Desktop//TCGA//LIHC//output_cyto.txt', 'a')
+    #cyto_output = open('//home//sharon//Desktop//TCGA//LIHC//output_cyto.txt', 'a')
     #cyto_output = open('//home//sharon//Desktop//TCGA//LUAD//output_cyto.txt', 'a')
     #cyto_output = open('//home//sharon//Desktop//TCGA//ESCA//output_cyto.txt', 'a')
     #cyto_output = open('//home//sharon//Desktop//TCGA//HNSC//output_cyto.txt', 'a')
+    cyto_output = open('//home//sharon//Desktop//TCGA//KICH//output_cyto.txt', 'a')
 
     #genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//output_genelist.txt', 'a+')
-    genelist_output = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt', 'a+')
+    #genelist_output = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt', 'a+')
     #genelist_output = open('//home//sharon//Desktop//TCGA//LUAD//output_genelist.txt', 'a+')
     #genelist_output = open('//home//sharon//Desktop//TCGA//ESCA//output_genelist.txt', 'a+')
     #genelist_output = open('//home//sharon//Desktop//TCGA//HNSC//output_genelist.txt', 'a+')
+    genelist_output = open('//home//sharon//Desktop//TCGA//KICH//output_genelist.txt', 'a+')
 
     #cyto_output.write("gene_name\tmiRNA_target_log2_FC\tp_value\n")
     miRNA_FC_dict = dict()
@@ -438,10 +451,11 @@ http://david.abcc.ncifcrf.gov/api.jsp?type=xxxxx&ids=XXXXX,XXXXX,XXXXXX,&tool=xx
 def DAVID_annotation():
     IDs = ""
     #genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//output_genelist.txt', 'r')
-    genelist_output = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt', 'r')
+    #genelist_output = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt', 'r')
     #genelist_output = open('//home//sharon//Desktop//TCGA//LUAD//output_genelist.txt', 'r')
     #genelist_output = open('//home//sharon//Desktop//TCGA//ESCA//output_genelist.txt', 'r')
     #genelist_output = open('//home//sharon//Desktop//TCGA//HNSC//output_genelist.txt', 'r')
+    genelist_output = open('//home//sharon//Desktop//TCGA//KICH//output_genelist.txt', 'r')
 
 
     for line in genelist_output:
@@ -459,16 +473,18 @@ def DAVID_annotation():
 #check for intersection between gene lists from miRNA and mRNA
 def combine_data():
     #miRNA_genes = open('//home//sharon//Desktop//TCGA//BRCA//output_genelist.txt','r')
-    miRNA_genes = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt','r')
+    #miRNA_genes = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt','r')
     #miRNA_genes = open('//home//sharon//Desktop//TCGA//LUAD//output_genelist.txt','r')
     #miRNA_genes = open('//home//sharon//Desktop//TCGA//ESCA//output_genelist.txt','r')
     #miRNA_genes = open('//home//sharon//Desktop//TCGA//HNSC//output_genelist.txt','r')
+    miRNA_genes = open('//home//sharon//Desktop//TCGA//KICH//output_genelist.txt','r')
 
     #mRNA_gnes = open("//home//sharon//Desktop//TCGA//BRCA//output_mRNA_genes.txt",'r')
-    mRNA_gnes = open("//home//sharon//Desktop//TCGA//LIHC//output_mRNA_genes.txt",'r')
+    #mRNA_gnes = open("//home//sharon//Desktop//TCGA//LIHC//output_mRNA_genes.txt",'r')
     #mRNA_gnes = open("//home//sharon//Desktop//TCGA//LUAD//output_mRNA_genes.txt",'r')
     #mRNA_gnes = open("//home//sharon//Desktop//TCGA//ESCA//output_mRNA_genes.txt",'r')
     #mRNA_gnes = open("//home//sharon//Desktop//TCGA//HNSC//output_mRNA_genes.txt",'r')
+    mRNA_gnes = open("//home//sharon//Desktop//TCGA//KICH//output_mRNA_genes.txt",'r')
 
     miRNA_list = []
     mRNA_list = []
@@ -497,10 +513,11 @@ def combine_data():
                 mRNA_dict[(line[0],line[1])] = line[2]
 
     #biomarkers = open('//home//sharon//Desktop//TCGA//BRCA//output_biomarkers.txt','w')
-    biomarkers = open('//home//sharon//Desktop//TCGA//LIHC//output_biomarkers.txt','w')
+    #biomarkers = open('//home//sharon//Desktop//TCGA//LIHC//output_biomarkers.txt','w')
     #biomarkers = open('//home//sharon//Desktop//TCGA//LUAD//output_biomarkers.txt','w')
     #biomarkers = open('//home//sharon//Desktop//TCGA//ESCA//output_biomarkers.txt','w')
     #biomarkers = open('//home//sharon//Desktop//TCGA//HNSC//output_biomarkers.txt','w')
+    biomarkers = open('//home//sharon//Desktop//TCGA//KICH//output_biomarkers.txt','w')
 
 
     biomarkers.write("#Genes differentially expressed in both miRNA and mRNA data\n")
@@ -518,20 +535,22 @@ def combine_data():
     """
     #output with gene from miRNA and FC from both miRNA and mRNA data sets
     #FC_both = open('//home//sharon//Desktop//TCGA//BRCA//output_combineFC.txt','w')
-    FC_both = open('//home//sharon//Desktop//TCGA//LIHC//output_combineFC.txt','w')
+    #FC_both = open('//home//sharon//Desktop//TCGA//LIHC//output_combineFC.txt','w')
     #FC_both = open('//home//sharon//Desktop//TCGA//LUAD//output_combineFC.txt','w')
     #FC_both = open('//home//sharon//Desktop//TCGA//ESCA//output_combineFC.txt','w')
     #FC_both = open('//home//sharon//Desktop//TCGA//HNSC//output_combineFC.txt','w')
+    FC_both = open('//home//sharon//Desktop//TCGA//KICH//output_combineFC.txt','w')
 
     FC_both.write("#Genes differentially expressed in both miRNA and mRNA data\n")
     FC_both.write("gene_name\tgene_ID\tlog2_FC_miRNA\tlog2_FC_mRNA\n")
 
 
     #cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//output_cyto.txt', 'r')
-    cyto_output = open('//home//sharon//Desktop//TCGA//LIHC//output_cyto.txt', 'r')
-    cyto_output = open('//home//sharon//Desktop//TCGA//LUAD//output_cyto.txt', 'r')
-    cyto_output = open('//home//sharon//Desktop//TCGA//ESCA//output_cyto.txt', 'r')
-    cyto_output = open('//home//sharon//Desktop//TCGA//HNSC//output_cyto.txt', 'r')
+    #cyto_output = open('//home//sharon//Desktop//TCGA//LIHC//output_cyto.txt', 'r')
+    #cyto_output = open('//home//sharon//Desktop//TCGA//LUAD//output_cyto.txt', 'r')
+    #cyto_output = open('//home//sharon//Desktop//TCGA//ESCA//output_cyto.txt', 'r')
+    #cyto_output = open('//home//sharon//Desktop//TCGA//HNSC//output_cyto.txt', 'r')
+    cyto_output = open('//home//sharon//Desktop//TCGA//KICH//output_cyto.txt', 'r')
 
     cyto = dict()
     for line in cyto_output:
