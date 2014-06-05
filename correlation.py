@@ -92,6 +92,7 @@ def getfiles_mrna():
                     #patient
                     patient = filemap_dict[file][8:12]
 
+
                     #otherwise, just add to dictionary and keep track of sample counts
                     if id[1] in allcountsT:
                         #if norm_count< .125 set to 0
@@ -175,7 +176,157 @@ def getfiles_mrna():
     return allsamplesT, allsamplesN
 
 
+##########
 
+def getFiles_miRNA():
+    #print("Location of files: ")
+    #directory = input()
+    #directory = '//home//sharon//Desktop//TCGA//BRCA//miRNA'
+    #directory = '//home//sharon//Desktop//TCGA//LIHC//miRNA'
+    #directory = '//home//sharon//Desktop//TCGA//LUAD//miRNA'
+    #directory = '//home//sharon//Desktop//TCGA//ESCA//miRNA'
+    #directory = '//home//sharon//Desktop//TCGA//HNSC//miRNA'
+    directory = '//home//sharon//Desktop//TCGA//KICH//miRNA'
+
+    path = r"%s" % directory
+    #dictionary for normal and tumor samples
+    allcountsN = dict()
+    allcountsT = dict()
+
+    #allcountsN1 = dict()
+    #allcountsT1 = dict()
+
+    #counts how many miRNA data I have per each
+    howmanyN = dict()
+    howmanyT = dict()
+
+    #01 at a specific location means tumor sample
+    tpat = "01"
+
+    #dictionary for normal and tumor samples-- keeps all values
+    allsamplesN = dict()
+    allsamplesT = dict()
+
+    for file in os.listdir(path):
+
+        patient = file[8:12]
+        #parse files for tumor samples
+        if fnmatch.fnmatch(file, '*.mirna.quantification.txt') and (tpat==file[13:15]):
+            #print(file[13:15])
+
+            #f = open('//home//sharon//Desktop//TCGA//BRCA//miRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//LIHC//miRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//LUAD//miRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//ESCA//miRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//HNSC//miRNA//%s' % file, 'r')
+            f = open('//home//sharon//Desktop//TCGA//KICH//miRNA//%s' % file, 'r')
+
+            #patient = file[8:12]
+
+
+
+
+            lines = f.readlines()
+            #print(lines)
+            for l in lines:
+                #print allcountsT
+
+
+                line = l.split('\t')
+                line= list(line)
+                #if it's the file title just ignore
+                if line[0].startswith("miRNA_ID"):
+                    continue
+                #otherwise, just add to dictionary and keep track of sample counts
+
+                elif (patient,line[0]) in allcountsT:
+
+                    #if RPM< .125 set to 0
+                    if float(line[2]) <0.125:
+                        allcountsT[(patient,line[0])]+= float(0.00000)
+                        ###allcountsT1[patient]+= float(0.00000)
+
+                        howmanyT[line[0]]+=1
+                        allsamplesT[(patient,line[0])].append(float(0.00000))
+                    else:
+                        allcountsT[(patient,line[0])]+= float(line[2])
+                        ###allcountsT1[patient]+= float(line[2])
+
+                        howmanyT[line[0]]+=1
+
+                        allsamplesT[(patient,line[0])].append(float(line[2]))
+                else:
+                    if float(line[2]) < 0.125:
+                        allcountsT[(patient,line[0])]= float(0.0000)
+                        ###allcountsT1[patient]= float(0.0000)
+                        howmanyT[line[0]] = 1
+                        allsamplesT.setdefault((patient,line[0]),[])
+                        allsamplesT[(patient,line[0])].append(float(line[2]))
+                    else:
+                        allcountsT[(patient,line[0])]= float(line[2])
+                        ###allcountsT1[patient]= float(line[2])
+                        howmanyT[line[0]] = 1
+                        allsamplesT.setdefault((patient,line[0]),[])
+                        allsamplesT[(patient,line[0])].append(float(line[2]))
+
+        #parse the files for normal samples
+        elif fnmatch.fnmatch(file, '*.mirna.quantification.txt') and (tpat != file[13:15]):
+
+
+            #f = open('//home//sharon//Desktop//TCGA//BRCA//miRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//LIHC//miRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//LUAD//miRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//ESCA//miRNA//%s' % file, 'r')
+            #f = open('//home//sharon//Desktop//TCGA//HNSC//miRNA//%s' % file, 'r')
+            f = open('//home//sharon//Desktop//TCGA//KICH//miRNA//%s' % file, 'r')
+
+            lines = f.readlines()
+            #print(lines)
+            for l in lines:
+                line = l.split('\t')
+                line= list(line)
+
+
+                #print allcountsN1
+                #if it's the file title just ignore
+                if line[0].startswith("miRNA_ID"):
+                    continue
+                #otherwise, just add to dictionary and keep track of sample counts
+                elif (patient,line[0]) in allcountsN:
+                    #if RPM < 0.125 set to 0
+                    if float(line[2]) < 0.125:
+                        allcountsN[(patient,line[0])]+= float(0.00000)
+                        ###allcountsN1[patient]+= float(0.00000)
+                        howmanyN[line[0]]+=1
+                        allsamplesN[line[0]].append(float(0.00000))
+                    else:
+                       allcountsN[(patient,line[0])]+= float(line[2])
+                       ###allcountsN1[patient]+= float(line[2])
+                       howmanyN[line[0]]+=1
+                       allsamplesN[line[0]].append(float(line[2]))
+                else:
+                    if float(line[2]) < 0.125:
+                        allcountsN[(patient,line[0])]= float(line[2])
+                        ###allcountsN1[patient]= float(line[2])
+                        howmanyN[line[0]] = 1
+                        allsamplesN.setdefault(line[0],[])
+                        allsamplesN[line[0]].append(float(line[2]))
+                    else:
+                        allcountsN[(patient,line[0])]= float(line[2])
+                        ###allcountsN1[patient]= float(line[2])
+                        howmanyN[line[0]] = 1
+                        allsamplesN.setdefault(line[0],[])
+                        allsamplesN[line[0]].append(float(line[2]))
+
+
+
+    #allcounts have the total RPM for that miRNA divided by the number of total samples
+    #allsamples includes all the RPM values collected per each miRNA
+    return  allsamplesN,allsamplesT
+
+
+
+"""
 def getfiles_mirna():
 
     #directory = '//home//sharon//Desktop//TCGA//BRCA//miRNA'
@@ -199,8 +350,8 @@ def getfiles_mirna():
     tpat = "01"
 
     #dictionary for normal and tumor samples-- keeps all values
-    allsamplesN = dict()
-    allsamplesT = dict()
+    allsampleN = dict()
+    allsampleT = dict()
 
     for file in os.listdir(path):
         #parse files for tumor samples
@@ -215,6 +366,8 @@ def getfiles_mirna():
 
             #patient
             patient = file[8:12]
+            print(patient)
+
 
             lines = f.readlines()
             for l in lines:
@@ -230,22 +383,22 @@ def getfiles_mirna():
                     if float(line[2]) <0.125:
                         allcountsT[line[0]]+= float(0.00000)
                         howmanyT[line[0]]+=1
-                        allsamplesT[(patient,line[0])].append(float(0.00000))
+                        allsampleT[(patient,line[0])].append(float(0.00000))
                     else:
                         allcountsT[line[0]]+= float(line[2])
                         howmanyT[line[0]]+=1
-                        allsamplesT[(patient,line[0])].append(float(line[2]))
+                        allsampleT[(patient,line[0])].append(float(line[2]))
                 else:
                     if float(line[2]) < 0.125:
                         allcountsT[line[0]]= float(line[2])
                         howmanyT[line[0]] = 1
-                        allsamplesT.setdefault((patient,line[0]),[])
-                        allsamplesT[(patient,line[0])].append(float(line[2]))
+                        allsampleT.setdefault((patient,line[0]),[])
+                        allsampleT[(patient,line[0])].append(float(line[2]))
                     else:
                         allcountsT[line[0]]= float(line[2])
                         howmanyT[line[0]] = 1
-                        allsamplesT.setdefault((patient,line[0]),[])
-                        allsamplesT[(patient,line[0])].append(float(line[2]))
+                        allsampleT.setdefault((patient,line[0]),[])
+                        allsampleT[(patient,line[0])].append(float(line[2]))
 
         #parse the files for normal samples
         elif fnmatch.fnmatch(file, '*.mirna.quantification.txt') and (tpat != file[13:15]):
@@ -260,6 +413,7 @@ def getfiles_mirna():
 
             #patient
             patient = file[8:12]
+            print(patient)
 
             lines = f.readlines()
             #print(lines)
@@ -275,22 +429,22 @@ def getfiles_mirna():
                     if float(line[2]) < 0.125:
                         allcountsN[line[0]]+= float(0.00000)
                         howmanyN[line[0]]+=1
-                        allsamplesN[(patient,line[0])].append(float(0.00000))
+                        allsampleN[(patient,line[0])].append(float(0.00000))
                     else:
                        allcountsN[line[0]]+= float(line[2])
                        howmanyN[line[0]]+=1
-                       allsamplesN[(patient,line[0])].append(float(line[2]))
+                       allsampleN[(patient,line[0])].append(float(line[2]))
                 else:
                     if float(line[2]) < 0.125:
                         allcountsN[line[0]]= float(line[2])
                         howmanyN[line[0]] = 1
-                        allsamplesN.setdefault((patient,line[0]),[])
-                        allsamplesN[(patient,line[0])].append(float(line[2]))
+                        allsampleN.setdefault((patient,line[0]),[])
+                        allsampleN[(patient,line[0])].append(float(line[2]))
                     else:
                         allcountsN[line[0]]= float(line[2])
                         howmanyN[line[0]] = 1
-                        allsamplesN.setdefault((patient,line[0]),[])
-                        allsamplesN[(patient,line[0])].append(float(line[2]))
+                        allsampleN.setdefault((patient,line[0]),[])
+                        allsampleN[(patient,line[0])].append(float(line[2]))
 
 
     mirna_count = len(allcountsT)
@@ -298,8 +452,8 @@ def getfiles_mirna():
 
     #allcounts have the total RPM for that miRNA divided by the number of total samples
     #allsamples includes all the RPM values collected per each miRNA
-    return allsamplesN,allsamplesT
-
+    return allsampleN,allsampleT
+"""
 
 
 def getFC_mRNA(allsamplesT, allsamplesN):
@@ -344,14 +498,59 @@ def getFC_mRNA(allsamplesT, allsamplesN):
     print geneFC
 """
 
+
+##def miRNAtargets(targets_clash,targets_mirtar,allsamplesN_mirna,allsamplesT_mirna):
+def miRNAtargets(targets_clash,targets_mirtar):
+
+    #process all miRNA targets to once dictionary
+    genetargets = dict([],)
+    for (k,v),(k2,v2) in zip(targets_clash.items(),targets_mirtar.items()):
+        print genetargets
+        if k not in genetargets:
+            genetargets.setdefault(k,[])
+            genetargets[k].append(v)
+
+        else:
+            if v in genetargets[k]:
+                continue
+            else:
+                genetargets[k].append(v)
+
+        if k2 not in genetargets:
+            genetargets.setdefault(k2,[])
+            genetargets[k2] = str(v2[0])
+        else:
+            print k2,v2[0]
+
+            if v2[0] in genetargets[k2]:
+                continue
+            else:
+                genetargets[k2].append(str(v2[0]))
+
+
+
+    print genetargets
+    #tumor targets
+
+
+
 def main():
-    allsamplesT_mrna, allsamplesN_mrna = getfiles_mrna()
-    allsamplesN_mirna,allsamplesT_mirna = getfiles_mirna()
+    ###allsamplesT_mrna, allsamplesN_mrna = getfiles_mrna()
+
+    ###allsamplesN_mirna, allsamplesT_mirna = getFiles_miRNA()
+    #allsamplesN_mirna,allsamplesT_mirna = getfiles_mirna()
     targets_clash = mirnatarget.CLASH()
     targets_mirtar = mirnatarget.MirTarBase()
 
-    print targets_clash
-    print targets_clash
+    #print targets_mirtar
+    #print targets_clash
+
+    ##miRNAtargets(targets_clash,targets_mirtar,allsamplesN_mirna,allsamplesT_mirna)
+    miRNAtargets(targets_clash,targets_mirtar)
+
+    #print allsamplesT_mirna
+
+
 
     getFC_mRNA(allsamplesT_mrna,allsamplesN_mrna)
 
