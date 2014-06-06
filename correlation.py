@@ -298,25 +298,25 @@ def getFiles_miRNA():
                         allcountsN[(patient,line[0])]+= float(0.00000)
                         ###allcountsN1[patient]+= float(0.00000)
                         howmanyN[line[0]]+=1
-                        allsamplesN[line[0]].append(float(0.00000))
+                        allsamplesN[(patient,line[0])].append(float(0.00000))
                     else:
                        allcountsN[(patient,line[0])]+= float(line[2])
                        ###allcountsN1[patient]+= float(line[2])
                        howmanyN[line[0]]+=1
-                       allsamplesN[line[0]].append(float(line[2]))
+                       allsamplesN[(patient,line[0])].append(float(line[2]))
                 else:
                     if float(line[2]) < 0.125:
                         allcountsN[(patient,line[0])]= float(line[2])
                         ###allcountsN1[patient]= float(line[2])
                         howmanyN[line[0]] = 1
-                        allsamplesN.setdefault(line[0],[])
-                        allsamplesN[line[0]].append(float(line[2]))
+                        allsamplesN.setdefault((patient,line[0]),[])
+                        allsamplesN[(patient,line[0])].append(float(line[2]))
                     else:
                         allcountsN[(patient,line[0])]= float(line[2])
                         ###allcountsN1[patient]= float(line[2])
                         howmanyN[line[0]] = 1
-                        allsamplesN.setdefault(line[0],[])
-                        allsamplesN[line[0]].append(float(line[2]))
+                        allsamplesN.setdefault((patient,line[0]),[])
+                        allsamplesN[(patient,line[0])].append(float(line[2]))
 
 
 
@@ -472,7 +472,8 @@ def getFC_mRNA(allsamplesT, allsamplesN):
             count_normal = float(str(v2)[1:-1])
             count_tumor = float(str(v)[1:-1])
             geneFC[gene_name] = np.log2(float((count_tumor+0.1) / (count_normal+0.1)))
-    print geneFC
+    #print geneFC
+    return geneFC
 
     """
     #pearson:
@@ -499,11 +500,102 @@ def getFC_mRNA(allsamplesT, allsamplesN):
 """
 
 
-##def miRNAtargets(targets_clash,targets_mirtar,allsamplesN_mirna,allsamplesT_mirna):
-def miRNAtargets(targets_clash,targets_mirtar):
+def miRNAtargets(targets_clash,targets_mirtar,allsamplesN_mirna,allsamplesT_mirna):
 
     #process all miRNA targets to once dictionary
-    genetargets = dict([],)
+    genetargets = dict()
+
+    for k,v in targets_clash.items():
+        if k in genetargets:
+            if v in genetargets[k]:
+                continue
+            else:
+                genetargets[k].append(v)
+        else:
+            genetargets.setdefault(k,[])
+            genetargets[k].append(v)
+    for k,v in targets_mirtar.items():
+        if k in genetargets:
+            if v[0] in genetargets[k]:
+                continue
+            else:
+                genetargets[k].append(v[0])
+        else:
+            genetargets.setdefault(k,[])
+            genetargets[k].append(v[0])
+
+    print genetargets
+
+    #tumor
+    alltargetsT = dict()
+    for k,v in allsamplesT_mirna.items():
+        mirna = k[1]
+        patient = k[0]
+        v = str(v).replace("[","").replace("]","")
+
+        if mirna in genetargets:
+            l=1
+            tmp = str(genetargets[mirna]).replace("[","").replace("]","")
+            tmp = tmp.replace("'","")
+            if "," in tmp:
+                tmp = tmp.split(",")
+                l = len(tmp)
+            #tmp = tmp.split(",")
+            #tmp = str(genetargets[mirna])[2:-2]
+            #print tmp
+            #l = len(genetargets[mirna])
+
+            #print l
+            if l==1:
+                #print "l=1",patient,tmp,v
+                alltargetsT[(patient,tmp)] = v
+            elif l>1:
+                for i in range(l):
+                    alltargetsT[(patient,tmp[i])] = v
+                    #print "yay ",patient, tmp
+
+
+
+
+    #normal
+    alltargetsN = dict()
+    for k,v in allsamplesN_mirna.items():
+        mirna = k[1]
+        patient = k[0]
+        v = str(v).replace("[","").replace("]","")
+
+        #print patient,mirna, v
+
+        if mirna in genetargets:
+            l=1
+            tmp = str(genetargets[mirna]).replace("[","").replace("]","")
+            tmp = tmp.replace("'","")
+            if "," in tmp:
+                tmp = tmp.split(",")
+                l = len(tmp)
+            #tmp = tmp.split(",")
+            #tmp = str(genetargets[mirna])[2:-2]
+            #print tmp
+            #l = len(genetargets[mirna])
+
+            #print l
+            if l==1:
+                #print "l=1",patient,tmp,v
+                alltargetsN[(patient,tmp)] = v
+            elif l>1:
+                for i in range(l):
+                    alltargetsN[(patient,tmp[i])] = v
+                    #print "yay ",patient, tmp
+
+
+    print "alltargetsN:"
+    print alltargetsN
+
+    #dictionary (patient,gene_target) = RPM
+    return alltargetsT, alltargetsN
+
+
+    """
     for (k,v),(k2,v2) in zip(targets_clash.items(),targets_mirtar.items()):
         print genetargets
         if k not in genetargets:
@@ -526,18 +618,37 @@ def miRNAtargets(targets_clash,targets_mirtar):
                 continue
             else:
                 genetargets[k2].append(str(v2[0]))
+    """
 
 
 
-    print genetargets
-    #tumor targets
+def getFC_miRNA(allsamplesT,allsamplesN):
+    #get the FC for each gene
+    geneFC = dict()
 
+    print allsamplesN
+    print allsamplesT
+
+    for (k,v), (k2,v2) in zip(allsamplesT.items(),allsamplesN.items()):
+        if k[0] == k2[0]:
+
+            gene_name = k[1]
+            #print str(v2)[1:-1]
+            #count_normal = float(str(v2)[1:-1])
+            count_normal = float(str(v2))
+            #count_tumor = float(str(v)[1:-1])
+            count_tumor = float(str(v))
+            print count_normal, count_tumor
+            geneFC[gene_name] = np.log2(float((count_tumor+0.1) / (count_normal+0.1)))
+    #print "FC mirna:"
+    #print geneFC
+    return geneFC
 
 
 def main():
-    ###allsamplesT_mrna, allsamplesN_mrna = getfiles_mrna()
+    allsamplesT_mrna, allsamplesN_mrna = getfiles_mrna()
 
-    ###allsamplesN_mirna, allsamplesT_mirna = getFiles_miRNA()
+    allsamplesN_mirna, allsamplesT_mirna = getFiles_miRNA()
     #allsamplesN_mirna,allsamplesT_mirna = getfiles_mirna()
     targets_clash = mirnatarget.CLASH()
     targets_mirtar = mirnatarget.MirTarBase()
@@ -545,14 +656,15 @@ def main():
     #print targets_mirtar
     #print targets_clash
 
-    ##miRNAtargets(targets_clash,targets_mirtar,allsamplesN_mirna,allsamplesT_mirna)
-    miRNAtargets(targets_clash,targets_mirtar)
+    alltargetsT, alltargetsN = miRNAtargets(targets_clash,targets_mirtar,allsamplesN_mirna,allsamplesT_mirna)
+    ##miRNAtargets(targets_clash,targets_mirtar)
 
     #print allsamplesT_mirna
 
 
 
-    getFC_mRNA(allsamplesT_mrna,allsamplesN_mrna)
+    FCmrna = getFC_mRNA(allsamplesT_mrna,allsamplesN_mrna)
+    FCmirna = getFC_miRNA(alltargetsT,alltargetsN)
 
 
 
