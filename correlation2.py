@@ -5,6 +5,10 @@ import mrnadata
 import numpy as np
 
 
+import matplotlib.pyplot as plt
+import pylab
+
+
 # for DAVID API:
 import urllib2
 
@@ -707,7 +711,7 @@ def combine_data():
     cyto_output.close()
 
 
-
+"""
 #Pearson and Spearman
 #S depicts monotonic relationships while P depicts linear relationships
 def correlation():
@@ -758,7 +762,7 @@ def correlation():
     #spearman:
     result_spearman =  stats.spearmanr(x,y)
     print(result_spearman)
-
+"""
 
 
 def miRNAtargets(targets_clash,targets_mirtar,allsamplesN_mirna,allsamplesT_mirna):
@@ -867,7 +871,7 @@ def miRNAtargets(targets_clash,targets_mirtar,allsamplesN_mirna,allsamplesT_mirn
             FC_each[k] = tmp
 
 
-    print FC_each
+    #print FC_each
     return FC_each
 
 def pair_mrna(allsamplesT_mrna,allsamplesN_mrna):
@@ -881,16 +885,103 @@ def pair_mrna(allsamplesT_mrna,allsamplesN_mrna):
                 #print len(v), v
                 tmp.append((float(v[i])+0.1)/((float(v2[i]))+0.1))
             FC_each[k] = tmp
-    print FC_each
+    #print FC_each
     return FC_each
 
 
 def mutual_genes(FC_each_mrna,FC_each_mirna):
 
+    f = open('//home//sharon//Desktop//TCGA//KICH//genelist.txt', 'w')
+    mut_genes = []
     for k in FC_each_mrna.keys():
         for k2 in FC_each_mirna.keys():
             if k==k2:
-                print k
+                #print k
+                mut_genes.append(k)
+                f.write(k+"\n")
+    return mut_genes
+
+
+def correlation(FC_each_mrna,FC_each_mirna, mut_genes):
+    import math
+    f = open('//home//sharon//Desktop//TCGA//KICH//correlation.txt', 'w')
+    f.write("#The Pearson correlation between mRNA and miRNA log2-fold changes\n")
+    f.write("Gene_name\tPearson_coefficient\tP-value\n")
+    #print FC_each_mrna
+    #print FC_each_mirna
+    A = []
+    d = dict()
+
+    for g in mut_genes:
+        x = FC_each_mrna[g]
+        y = FC_each_mirna[g]
+        print g, stats.spearmanr(x,y)
+        tmp, pv = ((stats.spearmanr(x,y)))
+        f.write(str(g)+"\t"+str(tmp)+"\t"+str(pv)+"\n")
+        if (tmp >0.1) or (tmp <-0.1):
+            d[g] = ((stats.spearmanr(x,y))[0])
+
+
+
+
+    l = len(mut_genes)
+
+
+
+    #fig,ax1 =plt.subplots(figsize=(l,l))
+    #fig,ax1 =plt.subplots()
+    #plt.locator_params(nbins=l)
+    plt.title("Pearson Correlation of mRNA vs. miRNA data")
+    plt.xlabel("Gene")
+    plt.xticks(rotation=90, fontsize = 8, linespacing = float(20.0))
+
+    plt.ylabel("Pearson Correlation Coefficient")
+    #labels = [str(item) for item in mut_genes]
+    #xtickNames = plt.setp(ax1,xticklabels=np.repeat(labels,2))
+    #plt.setp(xtickNames,rotation=45,fontsize=8)
+    #ax1.plot(mut_genes,B)
+
+    fig = plt.bar(range(len(d)), d.values(),align='center',linewidth=0.5)
+    plt.xticks(range(len(d)),d.keys())
+    plt.xlim(xmin=0)
+    ##plt.locator_params(axis='x',tight='False')
+    #xmin,xmax = plt.xlim()
+    #new_ticks = range(int(math.ceil(xmin)),int(math.floor(xmax)+1))
+    #plt.xticks(new_ticks,new_ticks)
+
+
+
+
+
+
+    #fig,ax1 = plt.subplots(len(mut_genes),len(mut_genes),True,True,False,FC_each_mrna,FC_each_mrna)
+    #fig,ax1 =plt.subplots()
+    #ax1.plot(A,B)
+    #ax1.xaxis.set_label_text("mRNA")
+
+    print len(mut_genes)
+
+    #ax1.xticks([str(item) for item in mut_genes],[str(r) for r in mut_genes])
+
+
+    ###labels = [item.get_text() for item in ax1.get_xticklabels()]
+    ###print len(labels)
+    ###for i in range(len(mut_genes)):
+    ###    labels[i] = mut_genes[i]
+
+    #ax1.set_xticklabels(labels)
+
+
+    #ax1.set_major_formatter([str(x) for x in g])
+
+    #ax1.ylabel("miRNA genes")
+    #ax1.set_title("Pearson Correlation mRNA vs. miRNA")
+
+    #plt.clf()
+    #plt.close()
+    plt.show()
+    #xlabel("mRNA genes")
+    #plt.show()
 
 def main():
 
@@ -909,9 +1000,9 @@ def main():
     targets_clash = mirnatarget.CLASH()
     targets_mirtar = mirnatarget.MirTarBase()
 
-    print "targets:"
-    print targets_clash
-    print targets_mirtar
+    #print "targets:"
+    #print targets_clash
+    #print targets_mirtar
 
     FC_each_mirna = miRNAtargets(targets_clash,targets_mirtar,allsamplesN,allsamplesT)
 
@@ -923,7 +1014,9 @@ def main():
 
     FC_each_mrna = pair_mrna(allsamplesT_mrna,allsamplesN_mrna)
 
-    mutual_genes(FC_each_mrna,FC_each_mirna)
+    mut_genes = mutual_genes(FC_each_mrna,FC_each_mirna)
+
+    correlation(FC_each_mrna,FC_each_mirna,mut_genes)
     """
     #outputForCyto(targets, pval_dict)
     outputForCyto2(targets_clash, pval_dict)
