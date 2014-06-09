@@ -6,6 +6,7 @@ __author__ = 'sharon'
 import xlrd
 
 
+#contains miRNA target predictions that are not validated so it's better to use the other DBs
 def microRNA():
     file = open("//home//sharon//Desktop//miRNA_targets//microrna.org//hg19_predictions_S_C_aug2010.txt", 'r')
     title = file.readline().strip()
@@ -27,8 +28,6 @@ def CLASH():
         ## delete the astreisk from the miRNA name
         if line[4][-1] == '*':
             temp = (line[4][:-1]).lower()
-            #print((line[4]).lower())
-            #print (line[4][:-1]).lower()
             mirna_dict[temp] = (line[2]).lower()
         else:
             mirna_dict[(line[4]).lower()] = (line[2]).lower()
@@ -65,7 +64,7 @@ def MirTarBase():
 def main():
 
     #microRNA()
-    #CLASH()
+    CLASH()
     MirTarBase()
 
 
