@@ -5,28 +5,16 @@ import mrnadata
 import numpy as np
 
 
-# for DAVID API:
-import urllib2
-
-
 
 __author__ = 'Sharong'
-#import numpy as np
-#from scipy.stats import ttest_1samp, wilcoxon, ttest_ind, mannwhitneyu
-import csv
-import glob
 
 import os
 import fnmatch
 from scipy import stats
 import re
 
-#PATH = "C:\Users\Sharong\Desktop\Backed up Data 12.14.2012\Desktop\UCSD\2013-2014 academic year\BIMM 185\DB\BRCA\miRNASeq\BCGSC__IlluminaHiSeq_miRNASeq\Level_3"
-
-
 def getFiles_miRNA():
-    #print("Location of files: ")
-    #directory = input()
+
     #directory = '//home//sharon//Desktop//TCGA//BRCA//miRNA'
     #directory = '//home//sharon//Desktop//TCGA//LIHC//miRNA'
     #directory = '//home//sharon//Desktop//TCGA//LUAD//miRNA'
@@ -53,7 +41,6 @@ def getFiles_miRNA():
     for file in os.listdir(path):
         #parse files for tumor samples
         if fnmatch.fnmatch(file, '*.mirna.quantification.txt') and (tpat==file[13:15]):
-            #print(file[13:15])
 
             #f = open('//home//sharon//Desktop//TCGA//BRCA//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LIHC//miRNA//%s' % file, 'r')
@@ -63,7 +50,6 @@ def getFiles_miRNA():
             f = open('//home//sharon//Desktop//TCGA//KICH//miRNA//%s' % file, 'r')
 
             lines = f.readlines()
-            #print(lines)
             for l in lines:
 
                 line = l.split('\t')
@@ -84,10 +70,10 @@ def getFiles_miRNA():
                         allsamplesT[line[0]].append(float(line[2]))
                 else:
                     if float(line[2]) < 0.125:
-                        allcountsT[line[0]]= float(line[2])
+                        allcountsT[line[0]]= float(0.0000)
                         howmanyT[line[0]] = 1
                         allsamplesT.setdefault(line[0],[])
-                        allsamplesT[line[0]].append(float(line[2]))
+                        allsamplesT[line[0]].append(float(0.0000))
                     else:
                         allcountsT[line[0]]= float(line[2])
                         howmanyT[line[0]] = 1
@@ -97,7 +83,6 @@ def getFiles_miRNA():
         #parse the files for normal samples
         elif fnmatch.fnmatch(file, '*.mirna.quantification.txt') and (tpat != file[13:15]):
 
-
             #f = open('//home//sharon//Desktop//TCGA//BRCA//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LIHC//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LUAD//miRNA//%s' % file, 'r')
@@ -106,7 +91,6 @@ def getFiles_miRNA():
             f = open('//home//sharon//Desktop//TCGA//KICH//miRNA//%s' % file, 'r')
 
             lines = f.readlines()
-            #print(lines)
             for l in lines:
                 line = l.split('\t')
                 line= list(line)
@@ -126,27 +110,19 @@ def getFiles_miRNA():
                        allsamplesN[line[0]].append(float(line[2]))
                 else:
                     if float(line[2]) < 0.125:
-                        allcountsN[line[0]]= float(line[2])
+                        allcountsN[line[0]]= float(0.0000)
                         howmanyN[line[0]] = 1
                         allsamplesN.setdefault(line[0],[])
-                        allsamplesN[line[0]].append(float(line[2]))
+                        allsamplesN[line[0]].append(float(0.0000))
                     else:
                         allcountsN[line[0]]= float(line[2])
                         howmanyN[line[0]] = 1
                         allsamplesN.setdefault(line[0],[])
                         allsamplesN[line[0]].append(float(line[2]))
 
-    #testing:
-
-    #for k,v in allsamplesN.items():
-        #if k=='hsa-mir-1322':
-            #s = sum([float(x) for x in v])
-            #print("sum", s)
-            #sum+= float(v)
-
 
     mirna_count = 0
-   #normalize: TEMP
+
     for k,v in allcountsT.items():
         temp = float(howmanyT[k])
         allcountsT[k]= v/temp
@@ -156,61 +132,11 @@ def getFiles_miRNA():
 
 
     mirna_count = len(allcountsT)
-    print "miRNA count: ", mirna_count
-
-    #print "tempcount tumor, normal: "
-    #print tempcount_tumor, tempcount_normal
-
-    #print "dict size: ", len(allcountsN), len(allsamplesT), len(allcountsT)
-
-    #deleteDuplicates(allsamplesN,allsamplesT)
+    print "Total miRNAs analyzed: ", mirna_count
 
     #allcounts have the total RPM for that miRNA divided by the number of total samples
     #allsamples includes all the RPM values collected per each miRNA
     return allcountsT,allcountsN,mirna_count, allsamplesN,allsamplesT
-
-"""
-#to make sure all samples have values for all miRNAs. to do  paired t-test
-def deleteDuplicates(allsamplesN, allsamplesT):
-    for k,v in allsamplesN.items():
-        if k not in allsamplesT:
-            print "DELETED"
-            del allsamplesN[k]
-        elif len(v) > len(allsamplesT[k]):
-            print "NOT EQUAL LENGTHS!!"
-    for k,v in allsamplesT.items():
-        if k not in allsamplesN:
-            print "DELETED"
-            del allsamplesT[k]
-"""
-
-
-# z = (expression in tumor sample) - (mean expression in normal sample)/ (standard deviation of expression in normal sample)
-def zScore(allsamplesN, allsamplesT):
-    import numpy, math
-    mean_dict = dict()
-    stdev_dict = dict()
-    for k,v in allsamplesN.items():
-        #print v
-        mean_dict[k] = numpy.mean(v)
-        #print mean_dict[k]
-        stdev_dict[k] = numpy.std(v)
-    #print mean_dict
-    #print stdev_dict
-
-    z_score = dict()
-    for k,v in allsamplesT.items():
-        z_score.setdefault(k,[])
-        for i in v:
-            if stdev_dict[k]==0:
-                z_score[k].append(0.000000)
-            else:
-                z_score[k].append((i - mean_dict[k]) / stdev_dict[k])
-        #print z_score[k]
-
-    ####what is nan?
-    #print z_score
-
 
 
 def foldChange(allsampleN, allsamplesT):
@@ -231,9 +157,6 @@ def foldChange(allsampleN, allsamplesT):
             foldchange_dict[k] = np.log2(float((t+0.1) / (n+0.1)))
         if foldchange_dict[k] >=1.0 or foldchange_dict[k]<=-1.0:
             result[k] = foldchange_dict[k]
-            #print foldchange_dict[k]
-    #print "fold change:"
-    #print(foldchange_dict)
     return result
 
 
@@ -241,7 +164,7 @@ def foldChange(allsampleN, allsamplesT):
 
 def paired_tTest(total_mirna, allsamplesN, allsamplesT):
 
-    #output of all differentially expressed miRNAs, include amounts?
+    #output of all differentially expressed miRNAs
     #output = open('//home//sharon//Desktop//TCGA//BRCA//output_miRNA.txt', 'w')
     #output = open('//home//sharon//Desktop//TCGA//LIHC//output_miRNA.txt', 'w')
     #output = open('//home//sharon//Desktop//TCGA//LUAD//output_miRNA.txt', 'w')
@@ -258,10 +181,7 @@ def paired_tTest(total_mirna, allsamplesN, allsamplesT):
 
     n = total_mirna
     significant_count = 0
-    #checked - all miRNA collected in all samples
-    #print("lengths: ", allsamplesT.__sizeof__(), allsamplesN.__sizeof__())
     for k,v in allsamplesT.items():
-        #number of miRNAs apparently don't match so only use the ones that do
         if k in allsamplesN:
             normal = allsamplesN[k]
             tumor = allsamplesT[k]
@@ -277,60 +197,15 @@ def paired_tTest(total_mirna, allsamplesN, allsamplesT):
 
 
                     output.write(k + "\t"+ str(FC[k])+"\n")
-    print "significant count: ", significant_count
+    print "Number of significant differentially expressed miRNAs: ", significant_count
     output.close()
     return pval_dict
 
 
-#prepares the layout for XGMML output file for Cytoscape
-# Gene_ID, gene_name, and then each column has expression and p-values columns
-def outputForCyto(targets, pval_dict):
-    #add log2 FC and P-value to dictionary as values
-    #miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//output.txt', 'r')
-    #miRNA_FC = open('//home//sharon//Desktop//TCGA//LIHC//output.txt', 'r')
-    #miRNA_FC = open('//home//sharon//Desktop//TCGA//LUAD//output.txt', 'r')
-    #miRNA_FC = open('//home//sharon//Desktop//TCGA//ESCA//output.txt', 'r')
-    #miRNA_FC = open('//home//sharon//Desktop//TCGA//HNSC//output.txt', 'r')
-    miRNA_FC = open('//home//sharon//Desktop//TCGA//KICH//output.txt', 'r')
 
-    #cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//output_cyto.txt', 'w+')
-    #cyto_output = open('//home//sharon//Desktop//TCGA//LIHC//output_cyto.txt', 'w+')
-    #cyto_output = open('//home//sharon//Desktop//TCGA//LUAD//output_cyto.txt', 'w+')
-    #cyto_output = open('//home//sharon//Desktop//TCGA//ESCA//output_cyto.txt', 'w+')
-    #cyto_output = open('//home//sharon//Desktop//TCGA//HNSC//output_cyto.txt', 'w+')
-    cyto_output = open('//home//sharon//Desktop//TCGA//KICH//output_cyto.txt', 'w+')
-
-    #genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//output_genelist.txt', 'w+')
-    #genelist_output = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt', 'w+')
-    #genelist_output = open('//home//sharon//Desktop//TCGA//LUAD//output_genelist.txt', 'w+')
-    #genelist_output = open('//home//sharon//Desktop//TCGA//ESCA//output_genelist.txt', 'w+')
-    #genelist_output = open('//home//sharon//Desktop//TCGA//HNSC//output_genelist.txt', 'w+')
-    genelist_output = open('//home//sharon//Desktop//TCGA//KICH//output_genelist.txt', 'w+')
-
-    cyto_output.write("gene_id\tgene_name\tlog2_fold_change\tp_value\n")
-    miRNA_FC_dict = dict()
-
-    #keep track of all genes already written to file
-    genes = []
-
-    for l in miRNA_FC:
-        l = l.strip().split()
-        miRNA_FC_dict[l[0]] = float(l[1])
-    #print miRNA_FC_dict
-    #print targets
-    for k,v in targets.items():
-        #print k[0] , miRNA_FC_dict[k]
-        if k[0] in miRNA_FC_dict:
-            if str(k[2]) not in genes:
-                genes.append(str(k[2]))
-                genelist_output.write(k[2].lower()+"\n")
-            cyto_output.write(k[1]+"\t"+str(k[2])+"\t"+str(miRNA_FC_dict[k[0]])+"\t"+str(pval_dict[k[0]])+"\n")
-    cyto_output.close()
-    miRNA_FC.close()
-
-
-def outputForCyto2(targets, pval_dict):
-    #add log2 FC and P-value to dictionary as values
+#differentially expressed miRNA target genes. FC threshold -+1, p<0.05
+#gene_name	log2_fold_change	p_value
+def outputFCmirna1(targets, pval_dict):
 
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//output_miRNA.txt', 'r')
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//LIHC//output_miRNA.txt', 'r')
@@ -345,6 +220,7 @@ def outputForCyto2(targets, pval_dict):
     #cyto_output = open('//home//sharon//Desktop//TCGA//ESCA//output_cyto.txt', 'w')
     #cyto_output = open('//home//sharon//Desktop//TCGA//HNSC//output_cyto.txt', 'w')
     cyto_output = open('//home//sharon//Desktop//TCGA//KICH//output_cyto.txt', 'w')
+    print "writing differentially expressed miRNA target results in output_cyto.txt..."
 
     #genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//output_genelist.txt', 'w')
     #genelist_output = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt', 'w')
@@ -369,8 +245,6 @@ def outputForCyto2(targets, pval_dict):
         else:
             l = l.strip().split()
             miRNA_FC_dict[l[0]] = float(l[1])
-    print miRNA_FC_dict
-    print targets
     for k,v in targets.items():
         if k in miRNA_FC_dict:
             if str(v) not in genes:
@@ -382,8 +256,7 @@ def outputForCyto2(targets, pval_dict):
 
 
 
-def outputForCyto3(targets, pval_dict):
-    #add log2 FC and P-value to dictionary as values
+def outputFCmirna2(targets, pval_dict):
 
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//BRCA//output_miRNA.txt', 'r')
     #miRNA_FC = open('//home//sharon//Desktop//TCGA//LIHC//output_miRNA.txt', 'r')
@@ -419,8 +292,6 @@ def outputForCyto3(targets, pval_dict):
             continue
         else:
             genes.append(line)
-    print "genelist: "
-    print genes
 
     for l in miRNA_FC:
         if l.startswith("miRNA"):
@@ -428,10 +299,8 @@ def outputForCyto3(targets, pval_dict):
         else:
             l = l.strip().split()
             miRNA_FC_dict[l[0]] = float(l[1])
-    print miRNA_FC_dict
-    print targets
+
     for k,v in targets.items():
-        #print v[0]
         if k in miRNA_FC_dict:
             if str(v[0]) not in genes:
                 genes.append(str(v[0]))
@@ -439,36 +308,6 @@ def outputForCyto3(targets, pval_dict):
             cyto_output.write(v[0].lower()+"\t"+str(miRNA_FC_dict[k])+"\t"+str(pval_dict[k])+"\n")
     cyto_output.close()
     miRNA_FC.close()
-
-"""
-API:
-http://david.abcc.ncifcrf.gov/api.jsp?type=xxxxx&ids=XXXXX,XXXXX,XXXXXX,&tool=xxxx&annot=xxxxx,xxxxxx,xxxxx,
-    type  =  one of DAVID recognized gene types
-    annot  = a list of desired annotation  categories separated by ","
-    ids  = a list of user's gene IDs separated by ","
-    tool  = one of DAVID tool names
-
-"""
-def DAVID_annotation():
-    IDs = ""
-    #genelist_output = open('//home//sharon//Desktop//TCGA//BRCA//output_genelist.txt', 'r')
-    #genelist_output = open('//home//sharon//Desktop//TCGA//LIHC//output_genelist.txt', 'r')
-    #genelist_output = open('//home//sharon//Desktop//TCGA//LUAD//output_genelist.txt', 'r')
-    #genelist_output = open('//home//sharon//Desktop//TCGA//ESCA//output_genelist.txt', 'r')
-    #genelist_output = open('//home//sharon//Desktop//TCGA//HNSC//output_genelist.txt', 'r')
-    genelist_output = open('//home//sharon//Desktop//TCGA//KICH//output_genelist.txt', 'r')
-
-
-    for line in genelist_output:
-        line = line.strip()
-        IDs+=line+","
-    print IDs
-    url = "http://david.abcc.ncifcrf.gov/api.jsp?type=GENE_SYMBOL&ids="+IDs+"&tool=term2term&annot=GOTERM_BP_FAT"
-    try:
-      result = urllib2.urlopen(url)
-      print result.read()
-    except urllib2.URLError, e:
-        print e.reason
 
 
 #check for intersection between gene lists from miRNA and mRNA
@@ -519,21 +358,10 @@ def combine_data():
     #biomarkers = open('//home//sharon//Desktop//TCGA//ESCA//output_biomarkers.txt','w')
     #biomarkers = open('//home//sharon//Desktop//TCGA//HNSC//output_biomarkers.txt','w')
     biomarkers = open('//home//sharon//Desktop//TCGA//KICH//output_biomarkers.txt','w')
+    print "writing mutual mRNA-miRNA differentially expressed gene results in output_biomarkers.txt..."
 
 
     biomarkers.write("#Genes differentially expressed in both miRNA and mRNA data\n")
-
-    """
-    print "both lists:"
-    print miRNA_list
-    print mRNA_list
-
-    for g in miRNA_list:
-
-        if g in mRNA_list:
-            print "g " + g
-            biomarkers.write(g +"\n")
-    """
 
     #output with gene from miRNA and FC from both miRNA and mRNA data sets
     #FC_both = open('//home//sharon//Desktop//TCGA//BRCA//output_combineFC.txt','w')
@@ -545,7 +373,7 @@ def combine_data():
 
     FC_both.write("#Genes differentially expressed in both miRNA and mRNA data\n")
     FC_both.write("gene_name\tgene_ID\tlog2_FC_miRNA\tlog2_FC_mRNA\n")
-
+    print "writing combined mRNA-miRNA fold change results in output_combineFC.txt..."
 
     #cyto_output = open('//home//sharon//Desktop//TCGA//BRCA//output_cyto.txt', 'r')
     #cyto_output = open('//home//sharon//Desktop//TCGA//LIHC//output_cyto.txt', 'r')
@@ -565,7 +393,6 @@ def combine_data():
             # key= gene_name ; values= FC, p_val
             cyto[l[0]] = (l[1],l[2])
 
-
     for (k,v),(k2,v2) in zip(cyto.items(),mRNA_dict.items()):
         FC_both.write(k2[0]+"\t"+k2[1]+"\t"+v[0]+"\t"+v2+"\n")
         biomarkers.writelines(str(k)+"\n")
@@ -573,8 +400,7 @@ def combine_data():
     FC_both.close()
     cyto_output.close()
 
-
-
+"""
 #Pearson and Spearman
 #S depicts monotonic relationships while P depicts linear relationships
 def correlation():
@@ -626,7 +452,7 @@ def correlation():
     result_spearman =  stats.spearmanr(x,y)
     print(result_spearman)
 
-
+"""
 
 
 
@@ -635,28 +461,20 @@ def main():
 
     tumorDict, normalDict, total_mirna, allsamplesN, allsamplesT = getFiles_miRNA()
     pval_dict = paired_tTest(total_mirna,allsamplesN,allsamplesT)
-    #zScore(allsamplesN,allsamplesT)
 
-    #returns a dictionary: 3 keys[miRNA_ID,gene_ID,gene_name] and miSVR_score as value
-    ##TEMP!! need to work with CLASH DB to narrow down predictions
-    #work with DAVID annotation tool and import to Bader lab enchrichemnt map app
-    #targets = mirnatarget.microRNA()
+
     targets_clash = mirnatarget.CLASH()
     targets_mirtar = mirnatarget.MirTarBase()
 
-    #outputForCyto(targets, pval_dict)
-    outputForCyto2(targets_clash, pval_dict)
+    outputFCmirna1(targets_clash, pval_dict)
 
-    #add gene results from outputForCyto2:
-    outputForCyto3(targets_mirtar,pval_dict)
-
-    #DAVID_annotation()
+    outputFCmirna2(targets_mirtar,pval_dict)
 
     mrnadata.main()
 
     combine_data()
 
-    correlation()
+    #correlation()
 
 
 if __name__ == '__main__':
