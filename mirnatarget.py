@@ -1,4 +1,4 @@
-#a script to parse microRNA.org data [and others later on] to find target genes
+#a script to parse microRNA, CLASH and miRTarBase data to find target genes
 
 __author__ = 'sharon'
 
@@ -25,7 +25,6 @@ def CLASH():
     for line in file:
         line = line.strip()
         line = line.split("\t")
-        ## delete the astreisk from the miRNA name
         if line[4][-1] == '*':
             temp = (line[4][:-1]).lower()
             mirna_dict[temp] = (line[2]).lower()
@@ -56,9 +55,8 @@ def MirTarBase():
                 gene_ID = int(round(float(worksheet.cell(r,4).value)))
                 target_dict[(mirna).lower()] = (gene_name.lower(), gene_ID)
 
-
-    #print target_dict
     return target_dict
+
 
 
 def main():
