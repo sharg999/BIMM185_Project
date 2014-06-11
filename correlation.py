@@ -1,22 +1,18 @@
-
-
-import mirnatarget
-
-import matplotlib.pyplot as plt
-
 __author__ = 'Sharong'
 
 import os
 import fnmatch
 from scipy import stats
-
+import math
+import random
+import mirnatarget
+import matplotlib.pyplot as plt
 
 def getFiles_miRNA():
 
     #directory = '//home//sharon//Desktop//TCGA//BRCA//miRNA'
     #directory = '//home//sharon//Desktop//TCGA//LIHC//miRNA'
     #directory = '//home//sharon//Desktop//TCGA//LUAD//miRNA'
-    #directory = '//home//sharon//Desktop//TCGA//ESCA//miRNA'
     #directory = '//home//sharon//Desktop//TCGA//HNSC//miRNA'
     directory = '//home//sharon//Desktop//TCGA//KICH//miRNA'
 
@@ -43,7 +39,6 @@ def getFiles_miRNA():
             #f = open('//home//sharon//Desktop//TCGA//BRCA//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LIHC//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LUAD//miRNA//%s' % file, 'r')
-            #f = open('//home//sharon//Desktop//TCGA//ESCA//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//HNSC//miRNA//%s' % file, 'r')
             f = open('//home//sharon//Desktop//TCGA//KICH//miRNA//%s' % file, 'r')
 
@@ -83,7 +78,6 @@ def getFiles_miRNA():
             #f = open('//home//sharon//Desktop//TCGA//BRCA//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LIHC//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LUAD//miRNA//%s' % file, 'r')
-            #f = open('//home//sharon//Desktop//TCGA//ESCA//miRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//HNSC//miRNA//%s' % file, 'r')
             f = open('//home//sharon//Desktop//TCGA//KICH//miRNA//%s' % file, 'r')
 
@@ -129,7 +123,6 @@ def getfiles_mrna():
     #filemap = open('//home//sharon//Desktop//TCGA//BRCA//mRNA//file_manifest.txt','r')
     #filemap = open('//home//sharon//Desktop//TCGA//LIHC//mRNA//file_manifest.txt','r')
     #filemap = open('//home//sharon//Desktop//TCGA//LUAD//mRNA//file_manifest.txt','r')
-    #filemap = open('//home//sharon//Desktop//TCGA//ESCA//mRNA//file_manifest.txt','r')
     #filemap = open('//home//sharon//Desktop//TCGA//HNSC//mRNA//file_manifest.txt','r')
     filemap = open('//home//sharon//Desktop//TCGA//KICH//mRNA//file_manifest.txt','r')
 
@@ -147,7 +140,6 @@ def getfiles_mrna():
     #directory = '//home//sharon//Desktop//TCGA//BRCA//mRNA'
     #directory = '//home//sharon//Desktop//TCGA//LIHC//mRNA'
     #directory = '//home//sharon//Desktop//TCGA//LUAD//mRNA'
-    #directory = '//home//sharon//Desktop//TCGA//ESCA//mRNA'
     #directory = '//home//sharon//Desktop//TCGA//HNSC//mRNA'
     directory = '//home//sharon//Desktop//TCGA//KICH//mRNA'
 
@@ -175,7 +167,6 @@ def getfiles_mrna():
             #f = open('//home//sharon//Desktop//TCGA//BRCA//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LIHC//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LUAD//mRNA//%s' % file, 'r')
-            #f = open('//home//sharon//Desktop//TCGA//ESCA//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//HNSC//mRNA//%s' % file, 'r')
             f = open('//home//sharon//Desktop//TCGA//KICH//mRNA//%s' % file, 'r')
 
@@ -219,7 +210,6 @@ def getfiles_mrna():
             #f = open('//home//sharon//Desktop//TCGA//BRCA//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LIHC//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//LUAD//mRNA//%s' % file, 'r')
-            #f = open('//home//sharon//Desktop//TCGA//ESCA//mRNA//%s' % file, 'r')
             #f = open('//home//sharon//Desktop//TCGA//HNSC//mRNA//%s' % file, 'r')
             f = open('//home//sharon//Desktop//TCGA//KICH//mRNA//%s' % file, 'r')
 
@@ -343,8 +333,8 @@ def miRNAtargets(targets_clash,targets_mirtar,allsamplesN_mirna,allsamplesT_mirn
                 tmp.append((float(v[i])+0.1)/((float(v2[i]))+0.1))
             FC_each[k] = tmp
 
-
     return FC_each
+
 
 def pair_mrna(allsamplesT_mrna,allsamplesN_mrna):
     FC_each = dict()
@@ -359,20 +349,24 @@ def pair_mrna(allsamplesT_mrna,allsamplesN_mrna):
     return FC_each
 
 
+#find genes expressed in both datasets
 def mutual_genes(FC_each_mrna,FC_each_mirna):
 
     mut_genes = []
     for k in FC_each_mrna.keys():
         for k2 in FC_each_mirna.keys():
             if k==k2:
-                #print k
                 mut_genes.append(k)
     return mut_genes
 
 
 def correlation(FC_each_mrna,FC_each_mirna, mut_genes):
-    import math
+
+    #f = open('//home//sharon//Desktop//TCGA//BRCA//correlation.txt', 'w')
+    #f = open('//home//sharon//Desktop//TCGA//LUAD//correlation.txt', 'w')
+    #f = open('//home//sharon//Desktop//TCGA//LIHC//correlation.txt', 'w')
     f = open('//home//sharon//Desktop//TCGA//KICH//correlation.txt', 'w')
+    #f = open('//home//sharon//Desktop//TCGA//HNSC//correlation.txt', 'w')
     f.write("#The Pearson correlation between mRNA and miRNA log2-fold changes\n")
     f.write("Gene_name\tPearson_coefficient\tP-value\n")
     print "writing correlation results in correlation.txt..."
@@ -382,26 +376,52 @@ def correlation(FC_each_mrna,FC_each_mirna, mut_genes):
     for g in mut_genes:
         x = FC_each_mrna[g]
         y = FC_each_mirna[g]
+        lx = len(x)
+        ly = len(y)
+
+        #if the two correlated lists are not of the same length, randomly generate new entries for the short one
+        if lx < ly:
+            #how many numbers to generate
+            ll = ly-lx
+            for i in range(ll):
+                #generate random index from the existing ones of the shorter list
+                s = random.randint(0,lx-1)
+                #get the value from the random location and append to that list
+                tp = x[s]
+                x.append(tp)
+        elif ly<lx:
+            ll=lx-ly
+            for i in range(ll):
+                s= random.randint(0,ly-1)
+                tp = y[s]
+                y.append(tp)
+
         tmp, pv = ((stats.spearmanr(y,x)))
         if math.isnan(tmp):
             continue
         else:
             f.write(str(g)+"\t"+str(tmp)+"\t"+str(pv)+"\n")
-        if (tmp >0.1) or (tmp <-0.1):
+        if (tmp >0.15) or (tmp <-0.15):
             d[g] = tmp
 
     l = len(mut_genes)
 
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.grid(True)
+    plt.subplots_adjust(bottom=0.15)
+
     plt.title("Pearson Correlation of mRNA vs. miRNA data")
     plt.xlabel("Gene")
-    plt.xticks(rotation=90, fontsize = 8, linespacing = float(20.0))
-
+    plt.xticks(rotation=90, fontsize = 10, linespacing = float(20.0))
     plt.ylabel("Pearson Correlation Coefficient")
 
     fig = plt.bar(range(len(d)), d.values(),align='center',linewidth=0.5)
     plt.xticks(range(len(d)),d.keys())
     plt.xlim(xmin=0)
+
     plt.show()
+
 
 
 def main():
